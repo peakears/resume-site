@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/peakears/resume-site/actions/workflows/ci.yml/badge.svg)](https://github.com/peakears/resume-site/actions/workflows/ci.yml)
 
+**Live at [patrickkearney.dev](https://patrickkearney.dev)**
+
 My personal resume and portfolio site, built with **Next.js 16 (App Router)**, **React 19**, **TypeScript** and **Tailwind CSS v4**. It's statically exported, so it can be hosted anywhere for free.
 
 The repo is also a portfolio piece: it shows how I structure a small frontend project, test it, and work with AI tools like [Claude Code](https://claude.com/claude-code).
@@ -77,9 +79,28 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fe
 - **Lint, types & unit tests:** type-check, ESLint, Prettier check, and Vitest with coverage.
 - **E2E tests:** builds the static site and runs Playwright on desktop and mobile. If it fails, the HTML report and traces are uploaded as an artifact.
 
+## Deployment
+
+Hosted on **Cloudflare** with the custom domain `patrickkearney.dev`. Cloudflare builds straight from GitHub:
+
+| Setting           | Value                        |
+| ----------------- | ---------------------------- |
+| Production branch | `main`                       |
+| Build command     | `npm run build`              |
+| Output directory  | `out`                        |
+| Node version      | from [`.nvmrc`](.nvmrc) (24) |
+
+- Merging into `main` deploys to production.
+- Other branches and PRs get their own preview URLs.
+- [`public/_headers`](public/_headers) sets security headers and the content type of the extensionless link-preview image.
+- SEO files are generated at build time: `robots.txt`, `sitemap.xml`, and the Open Graph image from [`src/app/opengraph-image.tsx`](src/app/opengraph-image.tsx).
+- Traffic is measured with Cloudflare Web Analytics, which is cookieless, so there's no consent banner.
+
 ## Roadmap
 
 - [x] Fill in real resume content
 - [x] GitHub Actions CI on every PR
 - [x] Branch protection on `main` and `develop`
-- [ ] Deploy (Vercel, Cloudflare Pages or GitHub Pages) on a custom domain
+- [x] Custom domain: patrickkearney.dev
+- [ ] Deploy on Cloudflare with analytics
+- [ ] Golf-themed background animation

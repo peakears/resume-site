@@ -14,9 +14,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const title = `${profile.name} · ${profile.title}`;
+
 export const metadata: Metadata = {
-  title: `${profile.name} · ${profile.title}`,
+  metadataBase: new URL(profile.siteUrl),
+  title,
   description: profile.summary,
+  alternates: { canonical: "/" },
+  // The preview image comes from app/opengraph-image.tsx automatically.
+  openGraph: {
+    type: "profile",
+    url: "/",
+    siteName: profile.name,
+    title,
+    description: profile.summary,
+    locale: "en_CA",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description: profile.summary,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
