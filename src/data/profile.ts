@@ -1,8 +1,6 @@
 /**
  * All site content lives here. Components only render what this file
  * provides, so updating the resume never requires touching UI code.
- *
- * TODO: replace placeholder values (marked "TODO") with real details.
  */
 
 export interface Link {
@@ -62,10 +60,10 @@ export const profile: Profile = {
     "I care about leaving systems better than I found them: safer secret handling, smaller and simpler services, and tests that make change cheap. I use AI tools like Claude day to day to move faster on boilerplate and test coverage, so more of my time goes into design and review. This site's repo is an example of that workflow.",
   ],
   careerStart: "2022-01",
-  email: "you@example.com", // TODO
+  email: "patrick.kearney27@gmail.com",
   socials: [
-    { label: "GitHub", href: "https://github.com/your-username" }, // TODO
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/your-profile" }, // TODO
+    { label: "GitHub", href: "https://github.com/peakears" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/pkearney4/" },
   ],
   experience: [
     {
@@ -223,9 +221,9 @@ export const profile: Profile = {
       links: [
         {
           label: "Source",
-          href: "https://github.com/your-username/resume-site",
+          href: "https://github.com/peakears/resume-site",
         },
-      ], // TODO
+      ],
     },
   ],
 };
