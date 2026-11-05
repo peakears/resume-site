@@ -21,7 +21,7 @@ export function Contact({ email, socials, resumePdf }: ContactProps) {
         <li>
           <a
             href={`mailto:${email}`}
-            className="bg-accent text-accent-foreground rounded-md px-5 py-2.5 text-sm font-medium hover:opacity-90 print:bg-transparent print:p-0 print:text-inherit"
+            className="bg-accent text-accent-foreground inline-block rounded-md border border-transparent px-5 py-2.5 text-sm font-medium hover:opacity-90 print:bg-transparent print:p-0 print:text-inherit"
           >
             {email}
           </a>
