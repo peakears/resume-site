@@ -18,19 +18,20 @@ npm run dev                       # http://localhost:3000
 
 ## Scripts
 
-| Script                  | What it does                                             |
-| ----------------------- | -------------------------------------------------------- |
-| `npm run dev`           | Start the dev server with hot reload                     |
-| `npm run build`         | Build the static site into `out/`                        |
-| `npm run preview`       | Serve `out/` locally on port 4173                        |
-| `npm test`              | Run unit tests (Vitest + React Testing Library)          |
-| `npm run test:watch`    | Run unit tests in watch mode                             |
-| `npm run test:coverage` | Unit tests with a coverage report                        |
-| `npm run test:e2e`      | Build, serve and run Playwright tests (desktop + mobile) |
-| `npm run typecheck`     | TypeScript in strict mode                                |
-| `npm run lint`          | ESLint (Next.js core-web-vitals + TypeScript rules)      |
-| `npm run format`        | Format with Prettier (with Tailwind class sorting)       |
-| `npm run check`         | Everything above, the same gate CI will run              |
+| Script                  | What it does                                              |
+| ----------------------- | --------------------------------------------------------- |
+| `npm run dev`           | Start the dev server with hot reload                      |
+| `npm run build`         | Build the static site into `out/`                         |
+| `npm run preview`       | Serve `out/` locally on port 4173                         |
+| `npm test`              | Run unit tests (Vitest + React Testing Library)           |
+| `npm run test:watch`    | Run unit tests in watch mode                              |
+| `npm run test:coverage` | Unit tests with a coverage report                         |
+| `npm run test:e2e`      | Build, serve and run Playwright tests (desktop + mobile)  |
+| `npm run typecheck`     | TypeScript in strict mode                                 |
+| `npm run lint`          | ESLint (Next.js core-web-vitals + TypeScript rules)       |
+| `npm run format`        | Format with Prettier (with Tailwind class sorting)        |
+| `npm run resume:pdf`    | Build the site and regenerate `public/resume.pdf` from it |
+| `npm run check`         | Everything above, the same gate CI will run               |
 
 ## Project structure
 
@@ -49,6 +50,10 @@ docs/decisions/ Short records of why things are the way they are
 ### Content is data
 
 Everything on the page comes from [`src/data/profile.ts`](src/data/profile.ts). Components only render what they're given, which keeps them easy to test with fixtures. Updating the resume never touches UI code.
+
+### PDF resume
+
+`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF.
 
 ## Testing strategy
 

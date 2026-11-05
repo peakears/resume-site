@@ -10,6 +10,8 @@ type HeroProps = Pick<
   | "summary"
   | "careerStart"
   | "email"
+  | "resumePdf"
+  | "socials"
 > & { now?: Date };
 
 export function Hero({
@@ -20,39 +22,65 @@ export function Hero({
   summary,
   careerStart,
   email,
+  resumePdf,
+  socials,
   now,
 }: HeroProps) {
   const years = yearsSince(careerStart, now);
   return (
-    <section aria-labelledby="hero-heading" className="pt-20 pb-12 sm:pt-28">
-      <p className="text-accent mb-3 font-mono text-sm">Hi, I&apos;m</p>
-      <h1
-        id="hero-heading"
-        className="text-4xl font-bold tracking-tight sm:text-6xl"
-      >
-        {name}
-      </h1>
-      <p className="text-muted mt-4 text-xl sm:text-2xl">
-        {title}
-        {years > 0 && <> · {years}+ years of experience</>}
-      </p>
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed">{summary}</p>
-      <p className="text-muted mt-4 text-sm">
-        {location} · {availability}
-      </p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <a
-          href={`mailto:${email}`}
-          className="bg-accent text-accent-foreground rounded-md px-5 py-2.5 text-sm font-medium hover:opacity-90"
+    <section
+      aria-labelledby="hero-heading"
+      className="pt-20 pb-12 sm:pt-28 lg:pb-24 print:pt-0 print:pb-2"
+    >
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 print:max-w-none print:px-0">
+        <p className="text-accent mb-3 font-mono text-sm print:hidden">
+          Hi, I&apos;m
+        </p>
+        <h1
+          id="hero-heading"
+          className="text-4xl font-bold tracking-tight sm:text-6xl print:text-3xl"
         >
-          Get in touch
-        </a>
-        <a
-          href="#experience"
-          className="border-border hover:bg-surface rounded-md border px-5 py-2.5 text-sm font-medium"
-        >
-          View experience
-        </a>
+          {name}
+        </h1>
+        <p className="text-muted mt-4 text-xl sm:text-2xl print:mt-1 print:text-lg">
+          {title}
+          {years > 0 && <> · {years}+ years of experience</>}
+        </p>
+        <p className="mt-6 max-w-2xl text-lg leading-relaxed print:mt-2 print:max-w-none print:text-base">
+          {summary}
+        </p>
+        <p className="text-muted mt-4 text-sm print:mt-2">
+          {location} · {availability}
+          <span className="hidden print:inline">
+            {" · "}
+            {email}
+            {socials.map(
+              (s) =>
+                ` · ${s.href.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}`,
+            )}
+          </span>
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3 print:hidden">
+          <a
+            href={`mailto:${email}`}
+            className="bg-accent text-accent-foreground rounded-md px-5 py-2.5 text-sm font-medium hover:opacity-90"
+          >
+            Get in touch
+          </a>
+          <a
+            href={resumePdf}
+            download
+            className="border-border hover:bg-surface rounded-md border px-5 py-2.5 text-sm font-medium"
+          >
+            Download resume (PDF)
+          </a>
+          <a
+            href="#experience"
+            className="border-border hover:bg-surface rounded-md border px-5 py-2.5 text-sm font-medium"
+          >
+            View experience
+          </a>
+        </div>
       </div>
     </section>
   );
