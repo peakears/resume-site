@@ -22,6 +22,7 @@ test.describe("home page", () => {
     for (const section of [
       "About",
       "Experience",
+      "Education",
       "Skills",
       "Projects",
       "Contact",
@@ -49,6 +50,42 @@ test.describe("home page", () => {
     await expect(
       page.getByRole("heading", { level: 2, name: "Projects" }),
     ).toBeInViewport();
+  });
+
+  test("serves the PDF resume linked from the page", async ({
+    page,
+    request,
+  }) => {
+    await page.goto("/");
+    const href = await page
+      .getByRole("link", { name: "Download resume (PDF)" })
+      .first()
+      .getAttribute("href");
+    expect(href).toBe(profile.resumePdf);
+
+    const response = await request.get(href!);
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
+    expect((await response.body()).subarray(0, 5).toString()).toBe("%PDF-");
+  });
+
+  test("alternates section backgrounds on desktop only", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.goto("/");
+    const background = (id: string) =>
+      page
+        .locator(`section#${id}`)
+        .evaluate((el) => getComputedStyle(el).backgroundColor);
+
+    const about = await background("about");
+    const experience = await background("experience");
+    if (isMobile) {
+      expect(about).toBe(experience);
+    } else {
+      expect(about).not.toBe(experience);
+    }
   });
 
   test("theme choice persists across reloads", async ({ page }) => {

@@ -1,4 +1,5 @@
 import { Contact } from "@/components/Contact";
+import { Education } from "@/components/Education";
 import { Experience } from "@/components/Experience";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
@@ -17,21 +18,26 @@ export default function Home() {
         Skip to content
       </a>
       <Header name={profile.name} />
-      <main id="main" className="mx-auto w-full max-w-4xl flex-1 px-4 sm:px-6">
+      <main id="main" className="w-full flex-1">
         <Hero {...profile} />
-        <Section id="about" title="About">
-          <div className="max-w-2xl space-y-4 text-lg leading-relaxed">
+        <Section id="about" title="About" hideInPrint>
+          <div className="max-w-2xl space-y-4 text-lg leading-relaxed print:max-w-none print:text-base">
             {profile.about.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
         </Section>
         <Experience roles={profile.experience} />
+        <Education entries={profile.education} />
         <Skills groups={profile.skills} />
         <Projects projects={profile.projects} />
-        <Contact email={profile.email} socials={profile.socials} />
+        <Contact
+          email={profile.email}
+          socials={profile.socials}
+          resumePdf={profile.resumePdf}
+        />
       </main>
-      <footer className="border-border text-muted border-t py-8 text-center text-sm">
+      <footer className="border-border text-muted border-t py-8 text-center text-sm print:hidden">
         © {new Date().getFullYear()} {profile.name}. Built with Next.js and
         TypeScript.
       </footer>

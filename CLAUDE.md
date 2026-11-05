@@ -11,6 +11,8 @@ Personal resume site. Next.js 16 App Router, statically exported (`output: "expo
 - Every new component gets a unit test in `tests/unit/` that queries by role and accessible name.
 - User-visible behaviour (navigation, theme, layout) gets a Playwright test in `tests/e2e/`.
 
+- Print styles (`print:` variants) turn the page into the one-page PDF resume. After changing content or layout, run `npm run resume:pdf` and check that the PDF is still one page.
+
 ## Before finishing a change
 
 Run `npm run check` (typecheck, lint, format check, unit tests, E2E). It must pass.
