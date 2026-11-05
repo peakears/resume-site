@@ -72,7 +72,7 @@ export const profile: Profile = {
   summary:
     "Backend-focused software engineer building transactional services, third-party integrations and workflow-driven APIs on AWS. I design for reliability and security, and ship well-tested code in Java and TypeScript.",
   aboutHeadline:
-    "Software engineer building backend platforms and integrations at CARFAX since 2022.",
+    "Software engineer building backend platforms and integrations at CARFAX and Mobility Global since 2022.",
   about: [
     "I work across Java and TypeScript services on AWS, focusing on payment-provider integrations, tax, and modernizing legacy platforms. Recent work includes designing a shared Tax API for internal teams, building a commerce platform on MedusaJS, and migrating long-running Java services to Java 17 and serverless TypeScript.",
     "I prioritize reliability, secure handling of sensitive data, and strong automated test coverage. I use AI-assisted development tools to deliver efficiently without compromising quality.",
@@ -85,16 +85,38 @@ export const profile: Profile = {
   ],
   experience: [
     {
+      company: "Mobility Global",
+      title: "Software Engineer",
+      location: "London, ON",
+      start: "2026-10",
+      end: null,
+      highlights: [
+        "Software engineer on the Internal Apps – Finance team in the Digital Services Group.",
+        "Joined when CARFAX moved its development teams to its parent company, Mobility Global.",
+      ],
+      tech: [],
+    },
+    {
       company: "CARFAX",
       title: "Software Engineer",
       location: "London, ON",
       start: "2025-03",
-      end: null,
+      end: "2026-09",
       highlights: [
         "Helped plan, design and build a new payments and tax platform on the open-source MedusaJS commerce framework, using its built-in data model to speed up delivery.",
+        "Built and maintained services covering cart creation and the full payment lifecycle (authorize, capture, refund) across multiple payment providers, using synchronous and asynchronous workflows.",
+        "Implemented per-team payment-provider configuration, managing multiple credentials per processor with AWS Systems Manager Parameter Store.",
+        "Persisted customer, cart, order, product, payment, address and custom data in PostgreSQL.",
         "Designed a Java 17 Tax API that lets internal teams quote and record sales tax through one shared service.",
       ],
-      tech: ["Java 17", "TypeScript", "MedusaJS", "Vertex"],
+      tech: [
+        "Java 17",
+        "TypeScript",
+        "MedusaJS",
+        "PostgreSQL",
+        "AWS SSM",
+        "Vertex",
+      ],
     },
     {
       company: "CARFAX",
@@ -148,6 +170,7 @@ export const profile: Profile = {
         "EC2",
         "IAM",
         "KMS",
+        "Systems Manager (SSM)",
         "Secrets Manager",
         "CloudWatch",
       ],
