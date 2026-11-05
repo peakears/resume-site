@@ -117,6 +117,29 @@ test.describe("home page", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test("contact buttons are the same height and line up", async ({ page }) => {
+    await page.goto("/");
+    const boxes = await page.locator("#contact ul a").evaluateAll((links) =>
+      links.map((a) => {
+        const r = a.getBoundingClientRect();
+        return { top: Math.round(r.top), height: Math.round(r.height) };
+      }),
+    );
+    expect(boxes.length).toBeGreaterThan(1);
+
+    // Every button has the same height...
+    expect(new Set(boxes.map((b) => b.height)).size).toBe(1);
+    // ...and buttons on the same row share the same top edge.
+    const rows = new Map<number, number[]>();
+    for (const { top } of boxes) {
+      const row = [...rows.keys()].find((t) => Math.abs(t - top) < 20) ?? top;
+      rows.set(row, [...(rows.get(row) ?? []), top]);
+    }
+    for (const tops of rows.values()) {
+      expect(new Set(tops).size).toBe(1);
+    }
+  });
+
   for (const scheme of ["light", "dark"] as const) {
     test(`has no detectable accessibility violations (${scheme})`, async ({
       page,
