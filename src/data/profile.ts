@@ -56,10 +56,10 @@ export const profile: Profile = {
   location: "London, Ontario, Canada",
   availability: "Open to remote and hybrid roles",
   summary:
-    "I build reliable, well-tested software and care about clean architecture, developer experience, and shipping things that matter.", // TODO
+    "Software engineer specializing in payments and e-commerce systems. I modernize legacy services, build cloud-native APIs on AWS, and ship well-tested code in Java and TypeScript.",
   about: [
-    "TODO: A short paragraph about who you are as an engineer, what kinds of problems you enjoy, and what you're looking for next.",
-    "TODO: A second paragraph about how you work: collaboration, testing, mentoring, or using AI tools like Claude effectively.",
+    "I've spent my career on payments and commerce teams at CARFAX, where reliability matters: when checkout breaks, revenue stops. My work has ranged from upgrading long-lived Java services and replacing legacy payment SDKs with modern APIs, to designing new tax and commerce services from the ground up.",
+    "I care about leaving systems better than I found them: safer secret handling, smaller and simpler services, and tests that make change cheap. I use AI tools like Claude day to day to move faster on boilerplate and test coverage, so more of my time goes into design and review. This site's repo is an example of that workflow.",
   ],
   careerStart: "2022-01",
   email: "you@example.com", // TODO
@@ -69,36 +69,72 @@ export const profile: Profile = {
   ],
   experience: [
     {
-      company: "Current Company", // TODO
+      company: "CARFAX",
       title: "Software Engineer",
       location: "London, ON",
-      start: "2024-01",
+      start: "2025-03",
       end: null,
       highlights: [
-        "TODO: Impact-focused highlight with a number, e.g. reduced page load time by 40%.",
-        "TODO: Something you led or owned end to end.",
+        "Helped plan, design and build a new payments and tax platform on the open-source MedusaJS commerce framework, using its built-in data model to speed up delivery.",
+        "Designed a Java 17 Tax API that lets internal teams quote and record sales tax through one shared service.",
       ],
-      tech: ["TypeScript", "React", "Node.js"],
+      tech: ["Java 17", "TypeScript", "MedusaJS", "Node.js"],
     },
     {
-      company: "Previous Company", // TODO
-      title: "Junior Software Engineer",
+      company: "CARFAX",
+      title: "Associate Software Engineer",
       location: "London, ON",
       start: "2022-01",
-      end: "2023-12",
-      highlights: ["TODO: A highlight from this role."],
-      tech: ["JavaScript", "SQL"],
+      end: "2025-03",
+      highlights: [
+        "Maintained integrations with multiple payment providers for the consumer purchase flow.",
+        "Upgraded payment services from Java 8 to Java 17 and replaced a 20-year-old payment-gateway SDK with direct, API-driven integrations.",
+        "Rewrote a legacy Java 8 application as a TypeScript AWS Lambda and cut traffic over at the API gateway with zero downtime. Added automatic 30-day rotation of its encryption key.",
+        "Built a Google Pay proof of concept on the checkout page and ran an A/B test to measure its value. The data showed it wasn't worth the added complexity, so we chose not to roll it out.",
+      ],
+      tech: ["Java", "TypeScript", "AWS Lambda", "AWS Secrets Manager"],
     },
   ],
   skills: [
-    { category: "Languages", skills: ["TypeScript", "JavaScript"] }, // TODO
-    { category: "Frontend", skills: ["React", "Next.js", "Tailwind CSS"] },
-    { category: "Backend", skills: ["Node.js"] },
+    {
+      category: "Languages",
+      skills: ["Java", "TypeScript", "JavaScript", "SQL", "C++"],
+    },
+    {
+      category: "Frameworks & Runtimes",
+      skills: ["Node.js", "React", "Next.js", "MedusaJS"],
+    },
+    {
+      category: "Cloud (AWS)",
+      skills: [
+        "Lambda",
+        "SQS",
+        "S3",
+        "EventBridge",
+        "Secrets Manager",
+        "EC2",
+        "SES",
+      ],
+    },
+    {
+      category: "Databases",
+      skills: ["PostgreSQL", "MySQL", "DynamoDB", "MongoDB"],
+    },
     {
       category: "Testing",
-      skills: ["Vitest", "React Testing Library", "Playwright"],
+      skills: [
+        "Jest",
+        "JUnit",
+        "Vitest",
+        "React Testing Library",
+        "Playwright",
+      ],
     },
-    { category: "Tools", skills: ["Git", "GitHub", "Claude Code"] },
+    {
+      category: "Tools & Practices",
+      skills: ["Git", "GitHub", "REST APIs", "A/B testing", "Claude Code"],
+    },
+    { category: "Currently Learning", skills: ["Python", "Go", "Rust"] },
   ],
   projects: [
     {
