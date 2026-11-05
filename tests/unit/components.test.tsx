@@ -134,6 +134,13 @@ describe("Experience", () => {
     });
     expect(within(tech).getByText("TypeScript")).toBeInTheDocument();
   });
+
+  it("omits the technology list for a role with none listed", () => {
+    render(<Experience roles={[{ ...fixture.experience[0], tech: [] }]} />);
+    expect(
+      screen.queryByRole("list", { name: /Technologies used/ }),
+    ).not.toBeInTheDocument();
+  });
 });
 
 describe("Skills", () => {

@@ -23,7 +23,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={`lg:even:bg-surface scroll-mt-14 py-16 lg:py-24 print:py-2 ${hideInPrint ? "print:hidden" : ""}`}
+      className={`lg:even:bg-surface scroll-mt-14 py-16 lg:py-24 print:py-1 ${hideInPrint ? "print:hidden" : ""}`}
     >
       <div className="mx-auto max-w-4xl px-4 sm:px-6 print:max-w-none print:px-0">
         <h2
