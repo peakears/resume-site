@@ -32,6 +32,15 @@ export interface Project {
   links: Link[];
 }
 
+export interface Education {
+  institution: string;
+  program: string;
+  location: string;
+  startYear: number;
+  endYear: number;
+  honours: string[];
+}
+
 export interface Profile {
   name: string;
   title: string;
@@ -46,6 +55,9 @@ export interface Profile {
   experience: Role[];
   skills: SkillGroup[];
   projects: Project[];
+  education: Education[];
+  /** Path to the downloadable PDF resume, served from `public/` */
+  resumePdf: string;
 }
 
 export const profile: Profile = {
@@ -212,6 +224,17 @@ export const profile: Profile = {
     },
     { category: "Currently Learning", skills: ["Python", "Go", "Rust"] },
   ],
+  education: [
+    {
+      institution: "Fanshawe College",
+      program: "Computer Programming Analyst",
+      location: "London, ON",
+      startYear: 2018,
+      endYear: 2021,
+      honours: ["President's Honour Roll"],
+    },
+  ],
+  resumePdf: "/resume.pdf",
   projects: [
     {
       name: "This Website",

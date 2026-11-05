@@ -11,10 +11,12 @@ Personal resume site. Next.js 16 App Router, statically exported (`output: "expo
 - Every new component gets a unit test in `tests/unit/` that queries by role and accessible name.
 - User-visible behaviour (navigation, theme, layout) gets a Playwright test in `tests/e2e/`.
 
+- Print styles (`print:` variants) turn the page into the one-page PDF resume. After changing content or layout, run `npm run resume:pdf` and check that the PDF is still one page.
+
 ## Before finishing a change
 
 Run `npm run check` (typecheck, lint, format check, unit tests, E2E). It must pass.
 
 ## Git
 
-Work on `feature/*` branches off `develop`. Use Conventional Commit messages. Never commit directly to `main`.
+Work on `feature/*` branches off `develop` and open a PR into `develop`. Use Conventional Commit messages. `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.

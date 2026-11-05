@@ -6,15 +6,15 @@ import { TagList } from "./TagList";
 export function Experience({ roles }: { roles: Role[] }) {
   return (
     <Section id="experience" title="Experience">
-      <ol className="border-border space-y-10 border-l pl-6">
+      <ol className="border-border space-y-10 border-l pl-6 print:space-y-4 print:border-0 print:pl-0">
         {roles.map((role) => (
           <li key={`${role.company}-${role.start}`} className="relative">
             <span
               aria-hidden="true"
-              className="bg-accent absolute top-2 -left-[29px] h-2.5 w-2.5 rounded-full"
+              className="bg-accent absolute top-2 -left-[29px] h-2.5 w-2.5 rounded-full print:hidden"
             />
             <article>
-              <header className="mb-3">
+              <header className="mb-3 print:mb-1">
                 <h3 className="text-lg font-semibold">
                   {role.title}{" "}
                   <span className="text-muted">· {role.company}</span>
@@ -26,7 +26,7 @@ export function Experience({ roles }: { roles: Role[] }) {
                   · {role.location}
                 </p>
               </header>
-              <ul className="mb-4 list-disc space-y-1.5 pl-5 leading-relaxed">
+              <ul className="mb-4 list-disc space-y-1.5 pl-5 leading-relaxed print:mb-1 print:space-y-0.5 print:leading-snug">
                 {role.highlights.map((highlight) => (
                   <li key={highlight}>{highlight}</li>
                 ))}

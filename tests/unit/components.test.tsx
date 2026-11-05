@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Contact } from "@/components/Contact";
+import { Education } from "@/components/Education";
 import { Experience } from "@/components/Experience";
 import { Hero } from "@/components/Hero";
 import { Projects } from "@/components/Projects";
@@ -46,6 +47,17 @@ const fixture: Profile = {
       links: [{ label: "Source", href: "https://github.com/test/widget" }],
     },
   ],
+  education: [
+    {
+      institution: "Test College",
+      program: "Computer Programming",
+      location: "London, ON",
+      startYear: 2018,
+      endYear: 2021,
+      honours: ["Dean's List"],
+    },
+  ],
+  resumePdf: "/resume.pdf",
 };
 
 describe("Hero", () => {
@@ -63,6 +75,40 @@ describe("Hero", () => {
       "href",
       "mailto:test@example.com",
     );
+  });
+
+  it("offers the PDF resume as a download", () => {
+    render(<Hero {...fixture} />);
+    const link = screen.getByRole("link", { name: "Download resume (PDF)" });
+    expect(link).toHaveAttribute("href", "/resume.pdf");
+    expect(link).toHaveAttribute("download");
+  });
+});
+
+describe("Education", () => {
+  it("shows the program, school, years and honours", () => {
+    render(<Education entries={fixture.education} />);
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Education" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        level: 3,
+        name: "Computer Programming · Test College",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("2018 – 2021 · London, ON")).toBeInTheDocument();
+    const honours = screen.getByRole("list", {
+      name: "Honours at Test College",
+    });
+    expect(within(honours).getByText("Dean's List")).toBeInTheDocument();
+  });
+
+  it("omits the honours list when there are none", () => {
+    render(<Education entries={[{ ...fixture.education[0], honours: [] }]} />);
+    expect(
+      screen.queryByRole("list", { name: /Honours/ }),
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -113,12 +159,19 @@ describe("Projects", () => {
 
 describe("Contact", () => {
   it("renders the email and social links", () => {
-    render(<Contact email={fixture.email} socials={fixture.socials} />);
+    render(<Contact {...fixture} />);
     expect(
       screen.getByRole("link", { name: "test@example.com" }),
     ).toHaveAttribute("href", "mailto:test@example.com");
     expect(
       screen.getByRole("link", { name: "GitHub (opens in a new tab)" }),
     ).toHaveAttribute("href", "https://github.com/test");
+  });
+
+  it("offers the PDF resume as a download", () => {
+    render(<Contact {...fixture} />);
+    expect(
+      screen.getByRole("link", { name: "Download resume (PDF)" }),
+    ).toHaveAttribute("href", "/resume.pdf");
   });
 });

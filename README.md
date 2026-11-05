@@ -1,5 +1,7 @@
 # resume-site
 
+[![CI](https://github.com/peakears/resume-site/actions/workflows/ci.yml/badge.svg)](https://github.com/peakears/resume-site/actions/workflows/ci.yml)
+
 My personal resume and portfolio site, built with **Next.js 16 (App Router)**, **React 19**, **TypeScript** and **Tailwind CSS v4**. It's statically exported, so it can be hosted anywhere for free.
 
 The repo is also a portfolio piece: it shows how I structure a small frontend project, test it, and work with AI tools like [Claude Code](https://claude.com/claude-code).
@@ -16,19 +18,20 @@ npm run dev                       # http://localhost:3000
 
 ## Scripts
 
-| Script                  | What it does                                             |
-| ----------------------- | -------------------------------------------------------- |
-| `npm run dev`           | Start the dev server with hot reload                     |
-| `npm run build`         | Build the static site into `out/`                        |
-| `npm run preview`       | Serve `out/` locally on port 4173                        |
-| `npm test`              | Run unit tests (Vitest + React Testing Library)          |
-| `npm run test:watch`    | Run unit tests in watch mode                             |
-| `npm run test:coverage` | Unit tests with a coverage report                        |
-| `npm run test:e2e`      | Build, serve and run Playwright tests (desktop + mobile) |
-| `npm run typecheck`     | TypeScript in strict mode                                |
-| `npm run lint`          | ESLint (Next.js core-web-vitals + TypeScript rules)      |
-| `npm run format`        | Format with Prettier (with Tailwind class sorting)       |
-| `npm run check`         | Everything above, the same gate CI will run              |
+| Script                  | What it does                                              |
+| ----------------------- | --------------------------------------------------------- |
+| `npm run dev`           | Start the dev server with hot reload                      |
+| `npm run build`         | Build the static site into `out/`                         |
+| `npm run preview`       | Serve `out/` locally on port 4173                         |
+| `npm test`              | Run unit tests (Vitest + React Testing Library)           |
+| `npm run test:watch`    | Run unit tests in watch mode                              |
+| `npm run test:coverage` | Unit tests with a coverage report                         |
+| `npm run test:e2e`      | Build, serve and run Playwright tests (desktop + mobile)  |
+| `npm run typecheck`     | TypeScript in strict mode                                 |
+| `npm run lint`          | ESLint (Next.js core-web-vitals + TypeScript rules)       |
+| `npm run format`        | Format with Prettier (with Tailwind class sorting)        |
+| `npm run resume:pdf`    | Build the site and regenerate `public/resume.pdf` from it |
+| `npm run check`         | Everything above, the same gate CI will run               |
 
 ## Project structure
 
@@ -48,6 +51,10 @@ docs/decisions/ Short records of why things are the way they are
 
 Everything on the page comes from [`src/data/profile.ts`](src/data/profile.ts). Components only render what they're given, which keeps them easy to test with fixtures. Updating the resume never touches UI code.
 
+### PDF resume
+
+`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF.
+
 ## Testing strategy
 
 - **Unit (Vitest + React Testing Library):** pure helpers and each section component, rendered with a fixture profile. Queries use roles and accessible names, the way a user or screen reader finds things.
@@ -55,15 +62,24 @@ Everything on the page comes from [`src/data/profile.ts`](src/data/profile.ts). 
 
 ## Branching
 
-- `main`: production. Only updated by merging `develop`.
+- `main`: production. Only updated by a PR from `develop`.
 - `develop`: integration branch.
 - `feature/*`, `fix/*`: short-lived branches, merged into `develop` through a PR.
 
+Both `main` and `develop` are protected: changes arrive through pull requests, and CI must pass first.
+
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `test:`, `docs:`, `chore:`).
+
+## CI
+
+[GitHub Actions](.github/workflows/ci.yml) runs on every pull request and push to `main` and `develop`, as two parallel jobs:
+
+- **Lint, types & unit tests:** type-check, ESLint, Prettier check, and Vitest with coverage.
+- **E2E tests:** builds the static site and runs Playwright on desktop and mobile. If it fails, the HTML report and traces are uploaded as an artifact.
 
 ## Roadmap
 
-- [ ] Fill in real resume content
-- [ ] GitHub Actions CI running `npm run check` on every PR
-- [ ] Branch protection on `main`
+- [x] Fill in real resume content
+- [x] GitHub Actions CI on every PR
+- [x] Branch protection on `main` and `develop`
 - [ ] Deploy (Vercel, Cloudflare Pages or GitHub Pages) on a custom domain
