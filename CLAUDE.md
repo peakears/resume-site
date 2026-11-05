@@ -17,4 +17,4 @@ Run `npm run check` (typecheck, lint, format check, unit tests, E2E). It must pa
 
 ## Git
 
-Work on `feature/*` branches off `develop`. Use Conventional Commit messages. Never commit directly to `main`.
+Work on `feature/*` branches off `develop` and open a PR into `develop`. Use Conventional Commit messages. `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.

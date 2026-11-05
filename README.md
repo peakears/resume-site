@@ -1,5 +1,7 @@
 # resume-site
 
+[![CI](https://github.com/peakears/resume-site/actions/workflows/ci.yml/badge.svg)](https://github.com/peakears/resume-site/actions/workflows/ci.yml)
+
 My personal resume and portfolio site, built with **Next.js 16 (App Router)**, **React 19**, **TypeScript** and **Tailwind CSS v4**. It's statically exported, so it can be hosted anywhere for free.
 
 The repo is also a portfolio piece: it shows how I structure a small frontend project, test it, and work with AI tools like [Claude Code](https://claude.com/claude-code).
@@ -55,15 +57,24 @@ Everything on the page comes from [`src/data/profile.ts`](src/data/profile.ts). 
 
 ## Branching
 
-- `main`: production. Only updated by merging `develop`.
+- `main`: production. Only updated by a PR from `develop`.
 - `develop`: integration branch.
 - `feature/*`, `fix/*`: short-lived branches, merged into `develop` through a PR.
 
+Both `main` and `develop` are protected: changes arrive through pull requests, and CI must pass first.
+
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `test:`, `docs:`, `chore:`).
+
+## CI
+
+[GitHub Actions](.github/workflows/ci.yml) runs on every pull request and push to `main` and `develop`, as two parallel jobs:
+
+- **Lint, types & unit tests:** type-check, ESLint, Prettier check, and Vitest with coverage.
+- **E2E tests:** builds the static site and runs Playwright on desktop and mobile. If it fails, the HTML report and traces are uploaded as an artifact.
 
 ## Roadmap
 
-- [ ] Fill in real resume content
-- [ ] GitHub Actions CI running `npm run check` on every PR
-- [ ] Branch protection on `main`
+- [x] Fill in real resume content
+- [x] GitHub Actions CI on every PR
+- [x] Branch protection on `main` and `develop`
 - [ ] Deploy (Vercel, Cloudflare Pages or GitHub Pages) on a custom domain
