@@ -1,0 +1,20 @@
+@AGENTS.md
+
+# Project notes for Claude
+
+Personal resume site. Next.js 16 App Router, statically exported (`output: "export"`), so no server-only features: no Server Actions, route handlers with dynamic data, or default `next/image` optimization.
+
+## Conventions
+
+- All content lives in `src/data/profile.ts`. Components take data as props and never import the profile directly, except `src/app/page.tsx` and `layout.tsx`.
+- Colours come from CSS variables in `src/app/globals.css` (`bg-background`, `text-muted`, `border-border`, `bg-accent`, ...). Don't hard-code Tailwind palette colours; dark mode works by redefining the variables under `.dark`.
+- Every new component gets a unit test in `tests/unit/` that queries by role and accessible name.
+- User-visible behaviour (navigation, theme, layout) gets a Playwright test in `tests/e2e/`.
+
+## Before finishing a change
+
+Run `npm run check` (typecheck, lint, format check, unit tests, E2E). It must pass.
+
+## Git
+
+Work on `feature/*` branches off `develop`. Use Conventional Commit messages. Never commit directly to `main`.
