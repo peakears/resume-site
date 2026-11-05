@@ -51,7 +51,7 @@ export interface Profile {
 }
 
 export const profile: Profile = {
-  name: "Your Name", // TODO
+  name: "Patrick Kearney",
   title: "Software Engineer",
   location: "London, Ontario, Canada",
   availability: "Open to remote and hybrid roles",
