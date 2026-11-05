@@ -70,9 +70,9 @@ export const profile: Profile = {
   location: "London, Ontario, Canada",
   availability: "Open to remote and hybrid roles",
   summary:
-    "Software engineer specializing in payments and e-commerce systems. I modernize legacy services, build cloud-native APIs on AWS, and ship well-tested code in Java and TypeScript.",
+    "Backend-focused software engineer building transactional services, third-party integrations and workflow-driven APIs on AWS. I design for reliability and security, and ship well-tested code in Java and TypeScript.",
   aboutHeadline:
-    "Software engineer building payment, tax and commerce systems at CARFAX since 2022.",
+    "Software engineer building backend platforms and integrations at CARFAX since 2022.",
   about: [
     "I work across Java and TypeScript services on AWS, focusing on payment-provider integrations, tax, and modernizing legacy platforms. Recent work includes designing a shared Tax API for internal teams, building a commerce platform on MedusaJS, and migrating long-running Java services to Java 17 and serverless TypeScript.",
     "I prioritize reliability, secure handling of sensitive data, and strong automated test coverage. I use AI-assisted development tools to deliver efficiently without compromising quality.",
