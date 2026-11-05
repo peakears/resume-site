@@ -14,6 +14,7 @@ const fixture: Profile = {
   location: "London, Ontario, Canada",
   availability: "Open to remote",
   summary: "Builds things.",
+  aboutHeadline: "Headline.",
   about: ["Paragraph one."],
   careerStart: "2022-01",
   email: "test@example.com",

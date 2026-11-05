@@ -47,6 +47,8 @@ export interface Profile {
   location: string;
   availability: string;
   summary: string;
+  /** One-sentence headline shown at the top of the About section */
+  aboutHeadline: string;
   about: string[];
   /** ISO year-month the career started; used to compute years of experience */
   careerStart: string;
@@ -69,9 +71,11 @@ export const profile: Profile = {
   availability: "Open to remote and hybrid roles",
   summary:
     "Software engineer specializing in payments and e-commerce systems. I modernize legacy services, build cloud-native APIs on AWS, and ship well-tested code in Java and TypeScript.",
+  aboutHeadline:
+    "Software engineer building payment, tax and commerce systems at CARFAX since 2022.",
   about: [
-    "I've spent my career on payments and commerce teams at CARFAX, where reliability matters: when checkout breaks, revenue stops. My work has ranged from upgrading long-lived Java services and replacing legacy payment SDKs with modern APIs, to designing new tax and commerce services from the ground up.",
-    "I care about leaving systems better than I found them: safer secret handling, smaller and simpler services, and tests that make change cheap. I use AI tools like Claude day to day to move faster on boilerplate and test coverage, so more of my time goes into design and review. This site's repo is an example of that workflow.",
+    "I work across Java and TypeScript services on AWS, focusing on payment-provider integrations, tax, and modernizing legacy platforms. Recent work includes designing a shared Tax API for internal teams, building a commerce platform on MedusaJS, and migrating long-running Java services to Java 17 and serverless TypeScript.",
+    "I prioritize reliability, secure handling of sensitive data, and strong automated test coverage. I use AI-assisted development tools to deliver efficiently without compromising quality.",
   ],
   careerStart: "2022-01",
   email: "patrick.kearney27@gmail.com",
