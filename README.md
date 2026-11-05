@@ -106,5 +106,5 @@ To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or 
 - [x] GitHub Actions CI on every PR
 - [x] Branch protection on `main` and `develop`
 - [x] Custom domain: patrickkearney.dev
-- [ ] Deploy on Cloudflare with analytics
+- [x] Deploy on Cloudflare with analytics
 - [ ] Golf-themed background animation
