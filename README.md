@@ -81,14 +81,18 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fe
 
 ## Deployment
 
-Hosted on **Cloudflare** with the custom domain `patrickkearney.dev`. Cloudflare builds straight from GitHub:
+Hosted on **Cloudflare Workers** (static assets) with the custom domain `patrickkearney.dev`. Cloudflare builds straight from GitHub:
 
 | Setting           | Value                        |
 | ----------------- | ---------------------------- |
 | Production branch | `main`                       |
 | Build command     | `npm run build`              |
-| Output directory  | `out`                        |
+| Deploy command    | `npx wrangler deploy`        |
 | Node version      | from [`.nvmrc`](.nvmrc) (24) |
+
+[`wrangler.jsonc`](wrangler.jsonc) tells Wrangler to upload `out/` as plain static files. Without it, Wrangler assumes a Next.js app needs a server and tries to convert it with OpenNext, which fails for a static export.
+
+To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or `npx wrangler dev` to serve `out/` with the Cloudflare runtime.
 
 - Merging into `main` deploys to production.
 - Other branches and PRs get their own preview URLs.
