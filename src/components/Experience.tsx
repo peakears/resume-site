@@ -31,10 +31,12 @@ export function Experience({ roles }: { roles: Role[] }) {
                   <li key={highlight}>{highlight}</li>
                 ))}
               </ul>
-              <TagList
-                items={role.tech}
-                label={`Technologies used at ${role.company}`}
-              />
+              {role.tech.length > 0 && (
+                <TagList
+                  items={role.tech}
+                  label={`Technologies used at ${role.company}`}
+                />
+              )}
             </article>
           </li>
         ))}

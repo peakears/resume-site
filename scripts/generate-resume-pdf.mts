@@ -45,7 +45,7 @@ try {
   await page.pdf({
     path: OUTPUT,
     format: "Letter",
-    margin: { top: "0.5in", bottom: "0.5in", left: "0.5in", right: "0.5in" },
+    margin: { top: "0.4in", bottom: "0.4in", left: "0.5in", right: "0.5in" },
     printBackground: false,
   });
   await browser.close();
