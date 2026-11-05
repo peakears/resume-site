@@ -58,6 +58,8 @@ export interface Profile {
   education: Education[];
   /** Path to the downloadable PDF resume, served from `public/` */
   resumePdf: string;
+  /** Public URL of the live site, used for SEO and link previews */
+  siteUrl: string;
 }
 
 export const profile: Profile = {
@@ -235,6 +237,7 @@ export const profile: Profile = {
     },
   ],
   resumePdf: "/resume.pdf",
+  siteUrl: "https://patrickkearney.dev",
   projects: [
     {
       name: "This Website",

@@ -1,0 +1,10 @@
+# Cloudflare response headers. https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+
+# The static export writes the link-preview image without a file extension.
+/opengraph-image
+  Content-Type: image/png
