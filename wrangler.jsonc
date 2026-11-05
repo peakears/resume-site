@@ -9,4 +9,9 @@
     "directory": "./out",
     "not_found_handling": "404-page",
   },
+  // Matches the dashboard setting. Workers Logs isn't needed for a site
+  // that serves only static files; traffic stats come from Web Analytics.
+  "observability": {
+    "enabled": false,
+  },
 }
