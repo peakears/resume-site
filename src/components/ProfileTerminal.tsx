@@ -32,8 +32,11 @@ interface ProfileTerminalProps {
   data: TerminalData;
 }
 
+// No wrapping inside a string, so long lists break between items.
 const Str = ({ children }: { children: ReactNode }) => (
-  <span className="text-terminal-string">&quot;{children}&quot;</span>
+  <span className="text-terminal-string whitespace-nowrap">
+    &quot;{children}&quot;
+  </span>
 );
 
 function StringArray({ items }: { items: string[] }) {
@@ -208,10 +211,9 @@ export function ProfileTerminal({
                 <span className="text-terminal-muted">export const</span>{" "}
                 {variable} = {"{\n"}
                 {fields.map(([key, value]) => (
-                  <span key={key}>
-                    {"  "}
+                  // Indent like formatted code: 2 spaces, and 4 for a wrapped line.
+                  <span key={key} className="block pl-[4ch] -indent-[2ch]">
                     <span className="text-terminal-key">{key}</span>: {value},
-                    {"\n"}
                   </span>
                 ))}
                 {"};"}
