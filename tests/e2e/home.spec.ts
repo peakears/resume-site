@@ -150,4 +150,117 @@ test.describe("home page", () => {
       expect(results.violations).toEqual([]);
     });
   }
+
+  test("shows featured skills and reveals the rest on request", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const featured = profile.skills.filter((group) => group.featured);
+    const others = profile.skills.filter((group) => !group.featured);
+    const list = (category: string) =>
+      page.getByRole("list", { name: `${category} skills` });
+
+    await expect(list(featured[0].category)).toBeVisible();
+    await expect(list(others[0].category)).toBeHidden();
+
+    await page.getByRole("button", { name: /Show all skills/ }).click();
+    for (const group of others) {
+      await expect(list(group.category)).toBeVisible();
+    }
+
+    await page.getByRole("button", { name: "Show fewer skills" }).click();
+    await expect(list(others[0].category)).toBeHidden();
+  });
+
+  test("shows the profile terminal in the hero", async ({ page }) => {
+    await page.goto("/");
+    const terminal = page.getByRole("figure", {
+      name: "Profile summary, written as code",
+    });
+    await expect(terminal).toBeVisible();
+    await expect(terminal).toContainText(`role: "${profile.title}"`);
+  });
+
+  test("prints every skill group but not the terminal", async ({ page }) => {
+    await page.goto("/");
+    await page.emulateMedia({ media: "print" });
+    for (const group of profile.skills) {
+      await expect(
+        page.getByRole("list", { name: `${group.category} skills` }),
+      ).toBeVisible();
+    }
+    await expect(page.getByRole("figure")).toBeHidden();
+    await expect(page.getByRole("button", { name: /skills/ })).toBeHidden();
+  });
+
+  test("loads the headshot in the hero", async ({ page }) => {
+    test.skip(!profile.headshot, "No headshot configured");
+    await page.goto("/");
+    const image = page.getByRole("img", { name: profile.headshot!.alt });
+    await expect(image).toBeVisible();
+    expect(
+      await image.evaluate((img: HTMLImageElement) => img.naturalWidth),
+    ).toBeGreaterThan(0);
+  });
+
+  test("runs commands in the hero terminal", async ({ page }) => {
+    await page.goto("/");
+    const prompt = page.getByRole("textbox", { name: "Terminal command" });
+    await prompt.fill("about");
+    await prompt.press("Enter");
+    const terminal = page.getByRole("figure", {
+      name: "Profile summary, written as code",
+    });
+    await expect(terminal).toContainText(profile.aboutHeadline);
+  });
+
+  test("plays mini golf from the terminal", async ({ page }) => {
+    await page.goto("/");
+    const prompt = page.getByRole("textbox", { name: "Terminal command" });
+    await prompt.fill("golf");
+    await prompt.press("Enter");
+
+    const game = page.getByRole("dialog", { name: "Mini golf" });
+    await expect(game).toBeVisible();
+    await expect(game).toContainText("Hole 1 of 3");
+
+    const green = game.getByRole("application", { name: "Putting green" });
+    await expect(green).toBeVisible();
+    const box = await green.boundingBox();
+    expect(box!.width).toBeGreaterThan(200);
+
+    // A gentle keyboard putt counts a stroke.
+    await green.focus();
+    await page.keyboard.press(" ");
+    await expect(game).toContainText("Strokes 1");
+
+    const results = await new AxeBuilder({ page }).include("dialog").analyze();
+    expect(results.violations).toEqual([]);
+
+    await page.keyboard.press("Escape");
+    await expect(game).toBeHidden();
+    await expect(prompt).toBeFocused();
+  });
+
+  test("holes the first putt with the right line and power", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const prompt = page.getByRole("textbox", { name: "Terminal command" });
+    await prompt.fill("golf");
+    await prompt.press("Enter");
+    const game = page.getByRole("dialog", { name: "Mini golf" });
+    const green = game.getByRole("application", { name: "Putting green" });
+    await green.focus();
+
+    // The tee is lined up with the hole; 65% power drops it (see golf.test).
+    for (let i = 0; i < 3; i++) await page.keyboard.press("ArrowUp");
+    await expect(game).toContainText("Power 65%");
+    await page.keyboard.press(" ");
+
+    await expect(game).toContainText("Hole in one!");
+    await game.getByRole("button", { name: "Next hole" }).click();
+    await expect(game).toContainText("Hole 2 of 3");
+    await expect(game.getByRole("table", { name: "Scorecard" })).toBeVisible();
+  });
 });
