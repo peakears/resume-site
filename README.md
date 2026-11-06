@@ -98,6 +98,7 @@ To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or 
 - Only `main` builds on Cloudflare; non-production branch builds are turned off. Pull requests are checked by GitHub Actions CI instead, which builds the same static export and tests it with Playwright.
 - [`public/_headers`](public/_headers) sets security headers and the content type of the extensionless link-preview image.
 - SEO files are generated at build time: `robots.txt`, `sitemap.xml`, and the Open Graph image from [`src/app/opengraph-image.tsx`](src/app/opengraph-image.tsx).
+- The page embeds [JSON-LD](https://json-ld.org/) structured data (a schema.org `ProfilePage` about a `Person`), built from `profile.ts` by [`src/lib/jsonLd.ts`](src/lib/jsonLd.ts). Check it with the [Schema Markup Validator](https://validator.schema.org/).
 - Traffic is measured with Cloudflare Web Analytics, which is cookieless, so there's no consent banner.
 
 ## Roadmap

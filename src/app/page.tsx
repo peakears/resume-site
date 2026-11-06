@@ -7,10 +7,17 @@ import { Projects } from "@/components/Projects";
 import { Section } from "@/components/Section";
 import { Skills } from "@/components/Skills";
 import { profile } from "@/data/profile";
+import { buildProfileJsonLd, serializeJsonLd } from "@/lib/jsonLd";
 
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(buildProfileJsonLd(profile)),
+        }}
+      />
       <a
         href="#main"
         className="focus:bg-accent focus:text-accent-foreground sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-20 focus:rounded focus:px-3 focus:py-2"

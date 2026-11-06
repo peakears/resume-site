@@ -52,4 +52,28 @@ test.describe("search and link previews", () => {
     expect(response.ok()).toBe(true);
     expect(await response.text()).toContain(`<loc>${profile.siteUrl}/</loc>`);
   });
+
+  test("describes the person with JSON-LD structured data", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const scripts = page.locator('script[type="application/ld+json"]');
+    await expect(scripts).toHaveCount(1);
+
+    const jsonLd = JSON.parse((await scripts.textContent())!);
+    expect(jsonLd["@type"]).toBe("ProfilePage");
+    expect(jsonLd.mainEntity).toMatchObject({
+      "@type": "Person",
+      name: profile.name,
+      jobTitle: profile.title,
+      url: `${profile.siteUrl}/`,
+      sameAs: profile.socials.map((social) => social.href),
+    });
+
+    const current = profile.experience.find((role) => role.end === null);
+    expect(jsonLd.mainEntity.worksFor).toContainEqual({
+      "@type": "Organization",
+      name: current!.company,
+    });
+  });
 });
