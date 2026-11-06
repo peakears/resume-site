@@ -37,8 +37,6 @@ async function loadHeadshot(): Promise<string | null> {
 export default async function Image() {
   const domain = new URL(profile.siteUrl).host;
   const headshot = await loadHeadshot();
-  const quoted = (items: string[]) =>
-    items.map((item) => `"${item}"`).join(", ");
 
   return new ImageResponse(
     <div
@@ -88,7 +86,6 @@ export default async function Image() {
         style={{
           display: "flex",
           flexDirection: "column",
-          alignSelf: "flex-start",
           padding: "20px 28px",
           borderRadius: 16,
           border: `2px solid ${colors.border}`,
@@ -105,10 +102,28 @@ export default async function Image() {
           ] as const
         ).map(([key, items]) => (
           <div key={key} style={{ display: "flex" }}>
-            <span style={{ color: colors.key }}>{key}</span>
-            <span>: [</span>
-            <span style={{ color: colors.string }}>{quoted(items)}</span>
-            <span>]</span>
+            <span style={{ color: colors.key, flexShrink: 0 }}>{key}</span>
+            <span style={{ marginRight: 10, flexShrink: 0 }}>:</span>
+            {/* Items wrap as whole words, lining up under the first one. */}
+            <div style={{ display: "flex", flexWrap: "wrap", flex: 1 }}>
+              {items.map((item, i) => {
+                const last = i === items.length - 1;
+                return (
+                  <div
+                    key={item}
+                    style={{
+                      display: "flex",
+                      flexShrink: 0,
+                      marginRight: last ? 0 : 12,
+                    }}
+                  >
+                    {i === 0 && <span>[</span>}
+                    <span style={{ color: colors.string }}>{`"${item}"`}</span>
+                    <span>{last ? "]" : ","}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         ))}
       </div>

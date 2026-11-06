@@ -32,8 +32,11 @@ interface ProfileTerminalProps {
   data: TerminalData;
 }
 
+// No wrapping inside a string, so long lists break between items.
 const Str = ({ children }: { children: ReactNode }) => (
-  <span className="text-terminal-string">&quot;{children}&quot;</span>
+  <span className="text-terminal-string whitespace-nowrap">
+    &quot;{children}&quot;
+  </span>
 );
 
 function StringArray({ items }: { items: string[] }) {

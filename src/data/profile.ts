@@ -87,7 +87,12 @@ export const profile: Profile = {
   ],
   headshot: { src: "/headshot.jpg", alt: "Patrick Kearney" },
   coreStack: ["Java", "Spring Boot", "TypeScript", "AWS"],
-  focus: ["payments", "tax", "integrations", "AI-assisted development"],
+  focus: [
+    "Payment Platforms",
+    "API Design",
+    "Legacy Modernization",
+    "AI-Assisted Development",
+  ],
   careerStart: "2022-01",
   email: "patrick.kearney27@gmail.com",
   socials: [
