@@ -1,9 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { Avatar } from "@/components/Avatar";
 import { Contact } from "@/components/Contact";
 import { Education } from "@/components/Education";
+import { GolfGame } from "@/components/GolfGame";
 import { Experience } from "@/components/Experience";
 import { Hero } from "@/components/Hero";
 import { ProfileTerminal } from "@/components/ProfileTerminal";
@@ -11,6 +12,12 @@ import { Projects } from "@/components/Projects";
 import { Section } from "@/components/Section";
 import { Skills } from "@/components/Skills";
 import type { Profile } from "@/data/profile";
+
+// jsdom has no canvas; the game skips drawing when there's no context.
+beforeAll(() => {
+  HTMLCanvasElement.prototype.getContext = (() =>
+    null) as unknown as HTMLCanvasElement["getContext"];
+});
 
 const fixture: Profile = {
   name: "Test Person",
@@ -219,7 +226,7 @@ describe("Avatar", () => {
 });
 
 describe("ProfileTerminal", () => {
-  it("prints the profile facts as code", () => {
+  const terminal = (props: Partial<Parameters<typeof ProfileTerminal>[0]>) =>
     render(
       <ProfileTerminal
         name="Test Person"
@@ -227,12 +234,22 @@ describe("ProfileTerminal", () => {
         company="Acme"
         stack={["Go", "AWS"]}
         focus={["payments"]}
+        data={fixture}
+        {...props}
       />,
     );
-    const terminal = screen.getByRole("figure", {
-      name: "Profile summary, written as code",
-    });
-    const text = terminal.textContent ?? "";
+
+  const run = async (user: ReturnType<typeof userEvent.setup>, text: string) =>
+    user.type(
+      screen.getByRole("textbox", { name: "Terminal command" }),
+      `${text}{Enter}`,
+    );
+
+  it("prints the profile facts as code", () => {
+    terminal({});
+    const text =
+      screen.getByRole("figure", { name: "Profile summary, written as code" })
+        .textContent ?? "";
     expect(text).toContain("export const test = {");
     expect(text).toContain('role: "Engineer",');
     expect(text).toContain('company: "Acme",');
@@ -241,10 +258,91 @@ describe("ProfileTerminal", () => {
   });
 
   it("leaves out fields that aren't provided", () => {
-    render(
-      <ProfileTerminal name="Test" role="Engineer" stack={[]} focus={[]} />,
+    terminal({ company: undefined });
+    expect(screen.getByRole("figure").textContent).not.toContain("company");
+  });
+
+  it("runs commands typed at the prompt", async () => {
+    const user = userEvent.setup();
+    terminal({});
+    await run(user, "about");
+    expect(screen.getByText("Headline.")).toBeInTheDocument();
+
+    await run(user, "contact");
+    expect(
+      screen.getByRole("link", { name: "test@example.com" }),
+    ).toHaveAttribute("href", "mailto:test@example.com");
+
+    await run(user, "nope");
+    expect(screen.getByText(/command not found: nope/)).toBeInTheDocument();
+  });
+
+  it("recalls earlier commands with the up arrow", async () => {
+    const user = userEvent.setup();
+    terminal({});
+    await run(user, "help");
+    await run(user, "about");
+    const input = screen.getByRole("textbox", { name: "Terminal command" });
+    await user.keyboard("{ArrowUp}");
+    expect(input).toHaveValue("about");
+    await user.keyboard("{ArrowUp}");
+    expect(input).toHaveValue("help");
+    await user.keyboard("{ArrowDown}{ArrowDown}");
+    expect(input).toHaveValue("");
+  });
+
+  it("clears the screen", async () => {
+    const user = userEvent.setup();
+    terminal({});
+    await run(user, "about");
+    await run(user, "clear");
+    expect(screen.queryByText("Headline.")).not.toBeInTheDocument();
+    expect(screen.getByRole("figure").textContent).not.toContain(
+      "cat profile.ts",
     );
-    expect(screen.getByRole("figure").textContent).not.toContain("location");
+  });
+
+  it("opens the golf game", async () => {
+    const user = userEvent.setup();
+    terminal({});
+    await run(user, "golf");
+    expect(
+      await screen.findByRole("dialog", { name: "Mini golf" }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("GolfGame", () => {
+  it("starts on the first hole with no strokes", () => {
+    render(<GolfGame onClose={() => {}} />);
+    const dialog = screen.getByRole("dialog", { name: "Mini golf" });
+    expect(dialog).toHaveTextContent("Hole 1 of 3");
+    expect(dialog).toHaveTextContent("Strokes 0");
+    expect(
+      screen.getByRole("application", { name: "Putting green" }),
+    ).toBeInTheDocument();
+  });
+
+  it("aims and putts with the keyboard", async () => {
+    const user = userEvent.setup();
+    render(<GolfGame onClose={() => {}} />);
+    screen.getByRole("application", { name: "Putting green" }).focus();
+
+    await user.keyboard("{ArrowUp}");
+    expect(screen.getByText(/Power 55%/)).toBeInTheDocument();
+    await user.keyboard("{ArrowRight}");
+    expect(screen.getByText(/Aim 2°/)).toBeInTheDocument();
+
+    await user.keyboard(" ");
+    expect(screen.getByRole("dialog")).toHaveTextContent("Strokes 1");
+  });
+
+  it("closes from the Close button", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(<GolfGame onClose={onClose} />);
+    await user.click(screen.getByRole("button", { name: "Close" }));
+    expect(onClose).toHaveBeenCalled();
   });
 });
 

@@ -26,6 +26,15 @@
   --terminal-close: #ff5f57;
   --terminal-minimize: #febc2e;
   --terminal-zoom: #28c840;
+  --terminal-error: #fca5a5;
+  /* Mini-golf course, drawn on a canvas. */
+  --golf-green: #4caf5f;
+  --golf-wall: #6b4f2a;
+  --golf-sand: #ead7a1;
+  --golf-water: #3b82c4;
+  --golf-hole: #0b0f0c;
+  --golf-flag: #dc2626;
+  --golf-ball: #ffffff;
 }
 
 .dark {
@@ -45,6 +54,14 @@
   --terminal-close: #ff5f57;
   --terminal-minimize: #febc2e;
   --terminal-zoom: #28c840;
+  --terminal-error: #fca5a5;
+  --golf-green: #2f8a44;
+  --golf-wall: #5a4224;
+  --golf-sand: #cdb97f;
+  --golf-water: #2f6aa3;
+  --golf-hole: #050806;
+  --golf-flag: #ef4444;
+  --golf-ball: #ffffff;
 }
 
 @theme inline {
@@ -64,6 +81,7 @@
   --color-terminal-close: var(--terminal-close);
   --color-terminal-minimize: var(--terminal-minimize);
   --color-terminal-zoom: var(--terminal-zoom);
+  --color-terminal-error: var(--terminal-error);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

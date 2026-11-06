@@ -38,6 +38,7 @@ export default function Home() {
               location={currentRole?.location}
               stack={profile.coreStack}
               focus={profile.focus}
+              data={profile}
             />
           }
         />

@@ -53,6 +53,10 @@ docs/decisions/ Short records of why things are the way they are
 
 Everything on the page comes from [`src/data/profile.ts`](src/data/profile.ts). Components only render what they're given, which keeps them easy to test with fixtures. Updating the resume never touches UI code.
 
+### Interactive terminal and mini golf
+
+The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`, `contact`, `resume`, `clear`), all printed from `profile.ts`. `golf` opens a three-hole putting game drawn on a canvas, playable with a mouse, touch or keyboard. The physics and the commands are pure modules ([`src/lib/golf.ts`](src/lib/golf.ts), [`src/lib/terminal.ts`](src/lib/terminal.ts)) with their own unit tests, and the game's code only downloads when someone types `golf`.
+
 ### PDF resume
 
 `public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF.
