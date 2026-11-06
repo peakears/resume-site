@@ -93,6 +93,7 @@ export const profile: Profile = {
       highlights: [
         "Software engineer on the Internal Apps – Finance team in the Digital Services Group.",
         "Joined when CARFAX moved its development teams to its parent company, Mobility Global.",
+        "Use Claude Code as an agentic AI coding tool to ship faster and raise code quality.",
       ],
       tech: [],
     },
