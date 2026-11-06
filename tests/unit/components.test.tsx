@@ -1,10 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
+import { Avatar } from "@/components/Avatar";
 import { Contact } from "@/components/Contact";
 import { Education } from "@/components/Education";
 import { Experience } from "@/components/Experience";
 import { Hero } from "@/components/Hero";
+import { ProfileTerminal } from "@/components/ProfileTerminal";
 import { Projects } from "@/components/Projects";
+import { Section } from "@/components/Section";
 import { Skills } from "@/components/Skills";
 import type { Profile } from "@/data/profile";
 
@@ -16,6 +20,8 @@ const fixture: Profile = {
   summary: "Builds things.",
   aboutHeadline: "Headline.",
   about: ["Paragraph one."],
+  coreStack: ["TypeScript", "AWS"],
+  focus: ["payments"],
   careerStart: "2022-01",
   email: "test@example.com",
   socials: [{ label: "GitHub", href: "https://github.com/test" }],
@@ -182,5 +188,114 @@ describe("Contact", () => {
     expect(
       screen.getByRole("link", { name: "Download resume (PDF)" }),
     ).toHaveAttribute("href", "/resume.pdf");
+  });
+});
+
+describe("Hero layout", () => {
+  it("renders the aside next to the intro", () => {
+    render(<Hero {...fixture} aside={<p>Side content</p>} />);
+    expect(screen.getByText("Side content")).toBeInTheDocument();
+  });
+});
+
+describe("Avatar", () => {
+  it("shows the headshot with its alt text", () => {
+    render(
+      <Avatar
+        name="Test Person"
+        headshot={{ src: "/me.jpg", alt: "Photo of Test Person" }}
+      />,
+    );
+    expect(
+      screen.getByRole("img", { name: "Photo of Test Person" }),
+    ).toBeInTheDocument();
+  });
+
+  it("falls back to decorative initials without a photo", () => {
+    render(<Avatar name="Test Person" />);
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(screen.getByText("TP")).toHaveAttribute("aria-hidden", "true");
+  });
+});
+
+describe("ProfileTerminal", () => {
+  it("prints the profile facts as code", () => {
+    render(
+      <ProfileTerminal
+        name="Test Person"
+        role="Engineer"
+        company="Acme"
+        stack={["Go", "AWS"]}
+        focus={["payments"]}
+      />,
+    );
+    const terminal = screen.getByRole("figure", {
+      name: "Profile summary, written as code",
+    });
+    const text = terminal.textContent ?? "";
+    expect(text).toContain("export const test = {");
+    expect(text).toContain('role: "Engineer",');
+    expect(text).toContain('company: "Acme",');
+    expect(text).toContain('stack: ["Go", "AWS"],');
+    expect(text).toContain('focus: ["payments"],');
+  });
+
+  it("leaves out fields that aren't provided", () => {
+    render(
+      <ProfileTerminal name="Test" role="Engineer" stack={[]} focus={[]} />,
+    );
+    expect(screen.getByRole("figure").textContent).not.toContain("location");
+  });
+});
+
+describe("Section", () => {
+  it("numbers sections in nav order without changing the heading's name", () => {
+    render(
+      <Section id="experience" title="Experience">
+        <p>Body</p>
+      </Section>,
+    );
+    const heading = screen.getByRole("heading", {
+      level: 2,
+      name: "Experience",
+    });
+    expect(heading).toHaveTextContent("02.Experience");
+  });
+});
+
+describe("Skills toggle", () => {
+  const groups = [
+    { category: "Languages", skills: ["Java"], featured: true },
+    { category: "Cloud", skills: ["AWS"], featured: true },
+    { category: "Tools", skills: ["Git"] },
+  ];
+
+  // Visibility comes from Tailwind classes, which jsdom doesn't load, so the
+  // E2E suite checks what's actually shown. Here we check the toggle state.
+  it("toggles the extra groups with an accessible button", async () => {
+    const user = userEvent.setup();
+    render(<Skills groups={groups} />);
+
+    // Every group is in the document, so printed copies can include them all.
+    expect(
+      screen.getByRole("list", { name: "Tools skills" }),
+    ).toBeInTheDocument();
+
+    const button = screen.getByRole("button", {
+      name: "Show all skills (1 more groups)",
+    });
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    expect(button).toHaveAttribute("aria-controls", "skills-list");
+
+    await user.click(button);
+    expect(
+      screen.getByRole("button", { name: "Show fewer skills" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("shows every group, with no toggle, when none are featured", () => {
+    render(<Skills groups={[{ category: "Tools", skills: ["Git"] }]} />);
+    expect(screen.getByRole("list", { name: "Tools skills" })).toBeVisible();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });

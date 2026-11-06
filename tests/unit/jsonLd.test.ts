@@ -20,6 +20,8 @@ const fixture: Profile = {
   summary: "Builds things.",
   aboutHeadline: "Headline.",
   about: [],
+  coreStack: ["Java"],
+  focus: ["tax"],
   careerStart: "2020-01",
   email: "jane@example.com",
   socials: [

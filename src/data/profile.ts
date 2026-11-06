@@ -23,6 +23,8 @@ export interface Role {
 export interface SkillGroup {
   category: string;
   skills: string[];
+  /** Shown before "Show all skills" on the site. Every group is printed. */
+  featured?: boolean;
 }
 
 export interface Project {
@@ -50,6 +52,12 @@ export interface Profile {
   /** One-sentence headline shown at the top of the About section */
   aboutHeadline: string;
   about: string[];
+  /** Photo in `public/`, shown in the hero. Initials are shown without one. */
+  headshot?: { src: string; alt: string };
+  /** Main technologies, shown in the hero's terminal card */
+  coreStack: string[];
+  /** Areas of focus, shown in the hero's terminal card */
+  focus: string[];
   /** ISO year-month the career started; used to compute years of experience */
   careerStart: string;
   email: string;
@@ -77,6 +85,8 @@ export const profile: Profile = {
     "I work across Java and TypeScript services on AWS, focusing on payment-provider integrations, tax, and modernizing legacy platforms. Recent work includes designing a shared Tax API for internal teams, building a commerce platform on MedusaJS, and migrating long-running Java services to Java 17 and serverless TypeScript.",
     "I prioritize reliability, secure handling of sensitive data, and strong automated test coverage. I use AI-assisted development tools to deliver efficiently without compromising quality.",
   ],
+  coreStack: ["Java", "TypeScript", "AWS"],
+  focus: ["payments", "tax", "integrations"],
   careerStart: "2022-01",
   email: "patrick.kearney27@gmail.com",
   socials: [
@@ -137,10 +147,12 @@ export const profile: Profile = {
   skills: [
     {
       category: "Languages",
+      featured: true,
       skills: ["Java", "TypeScript", "JavaScript", "SQL", "C++"],
     },
     {
       category: "Backend & APIs",
+      featured: true,
       skills: [
         "Spring Boot",
         "Node.js",
@@ -159,6 +171,7 @@ export const profile: Profile = {
     },
     {
       category: "Cloud (AWS)",
+      featured: true,
       skills: [
         "Lambda",
         "API Gateway",
@@ -178,6 +191,7 @@ export const profile: Profile = {
     },
     {
       category: "Infrastructure & CI/CD",
+      featured: true,
       skills: [
         "AWS CDK",
         "Terraform",
@@ -191,10 +205,12 @@ export const profile: Profile = {
     },
     {
       category: "Databases",
+      featured: true,
       skills: ["PostgreSQL", "MySQL", "Redis", "DynamoDB", "MongoDB"],
     },
     {
       category: "Payments & Commerce",
+      featured: true,
       skills: [
         "PayPal",
         "Amazon Pay",
@@ -207,6 +223,7 @@ export const profile: Profile = {
     },
     {
       category: "Testing",
+      featured: true,
       skills: [
         "JUnit",
         "Mockito",

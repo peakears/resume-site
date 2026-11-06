@@ -150,4 +150,46 @@ test.describe("home page", () => {
       expect(results.violations).toEqual([]);
     });
   }
+
+  test("shows featured skills and reveals the rest on request", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const featured = profile.skills.filter((group) => group.featured);
+    const others = profile.skills.filter((group) => !group.featured);
+    const list = (category: string) =>
+      page.getByRole("list", { name: `${category} skills` });
+
+    await expect(list(featured[0].category)).toBeVisible();
+    await expect(list(others[0].category)).toBeHidden();
+
+    await page.getByRole("button", { name: /Show all skills/ }).click();
+    for (const group of others) {
+      await expect(list(group.category)).toBeVisible();
+    }
+
+    await page.getByRole("button", { name: "Show fewer skills" }).click();
+    await expect(list(others[0].category)).toBeHidden();
+  });
+
+  test("shows the profile terminal in the hero", async ({ page }) => {
+    await page.goto("/");
+    const terminal = page.getByRole("figure", {
+      name: "Profile summary, written as code",
+    });
+    await expect(terminal).toBeVisible();
+    await expect(terminal).toContainText(`role: "${profile.title}"`);
+  });
+
+  test("prints every skill group but not the terminal", async ({ page }) => {
+    await page.goto("/");
+    await page.emulateMedia({ media: "print" });
+    for (const group of profile.skills) {
+      await expect(
+        page.getByRole("list", { name: `${group.category} skills` }),
+      ).toBeVisible();
+    }
+    await expect(page.getByRole("figure")).toBeHidden();
+    await expect(page.getByRole("button", { name: /skills/ })).toBeHidden();
+  });
 });

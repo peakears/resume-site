@@ -12,7 +12,7 @@ export const NAV_ITEMS = [
 export function Header({ name }: { name: string }) {
   return (
     <header className="border-border bg-background/80 sticky top-0 z-10 border-b backdrop-blur print:hidden">
-      <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <a href="#top" className="font-semibold tracking-tight">
           {name}
         </a>

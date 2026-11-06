@@ -16,6 +16,16 @@
   --border: #d9e6dc;
   --accent: #15803d;
   --accent-foreground: #ffffff;
+  /* Terminal card in the hero: dark in both themes, like a real terminal. */
+  --terminal: #14201a;
+  --terminal-foreground: #e6efe9;
+  --terminal-muted: #9fb3a6;
+  --terminal-key: #86efac;
+  --terminal-string: #fde68a;
+  --terminal-border: #14201a;
+  --terminal-close: #ff5f57;
+  --terminal-minimize: #febc2e;
+  --terminal-zoom: #28c840;
 }
 
 .dark {
@@ -26,6 +36,15 @@
   --border: #23352b;
   --accent: #4ade80;
   --accent-foreground: #052e16;
+  --terminal: #0f1914;
+  --terminal-foreground: #e6efe9;
+  --terminal-muted: #9fb3a6;
+  --terminal-key: #86efac;
+  --terminal-string: #fde68a;
+  --terminal-border: #23352b;
+  --terminal-close: #ff5f57;
+  --terminal-minimize: #febc2e;
+  --terminal-zoom: #28c840;
 }
 
 @theme inline {
@@ -36,6 +55,15 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-terminal: var(--terminal);
+  --color-terminal-foreground: var(--terminal-foreground);
+  --color-terminal-muted: var(--terminal-muted);
+  --color-terminal-key: var(--terminal-key);
+  --color-terminal-string: var(--terminal-string);
+  --color-terminal-border: var(--terminal-border);
+  --color-terminal-close: var(--terminal-close);
+  --color-terminal-minimize: var(--terminal-minimize);
+  --color-terminal-zoom: var(--terminal-zoom);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
