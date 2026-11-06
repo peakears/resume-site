@@ -288,8 +288,15 @@ export const profile: Profile = {
     {
       name: "This Website",
       description:
-        "A statically exported Next.js resume site with typed content, unit tests, end-to-end tests, and automated accessibility checks.",
-      tech: ["Next.js", "TypeScript", "Tailwind CSS", "Vitest", "Playwright"],
+        "A statically exported Next.js resume site with an interactive terminal and a mini-golf game built on canvas with hand-written physics. Typed content, JSON-LD for search, and unit, end-to-end and accessibility tests in CI.",
+      tech: [
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS",
+        "Canvas API",
+        "Vitest",
+        "Playwright",
+      ],
       links: [
         {
           label: "Source",
