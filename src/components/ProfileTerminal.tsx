@@ -208,10 +208,9 @@ export function ProfileTerminal({
                 <span className="text-terminal-muted">export const</span>{" "}
                 {variable} = {"{\n"}
                 {fields.map(([key, value]) => (
-                  <span key={key}>
-                    {"  "}
+                  // Indent like formatted code: 2 spaces, and 4 for a wrapped line.
+                  <span key={key} className="block pl-[4ch] -indent-[2ch]">
                     <span className="text-terminal-key">{key}</span>: {value},
-                    {"\n"}
                   </span>
                 ))}
                 {"};"}

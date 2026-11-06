@@ -83,28 +83,34 @@ export default async function Image() {
         </div>
       </div>
 
-      {/* A one-line nod to the terminal in the hero. */}
+      {/* A nod to the terminal in the hero. */}
       <div
         style={{
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           alignSelf: "flex-start",
-          padding: "18px 28px",
+          padding: "20px 28px",
           borderRadius: 16,
           border: `2px solid ${colors.border}`,
           background: colors.terminal,
-          fontFamily: "monospace",
           fontSize: 28,
+          lineHeight: 1.5,
           color: colors.muted,
         }}
       >
-        <span style={{ color: colors.key }}>stack</span>
-        <span>: [</span>
-        <span style={{ color: colors.string }}>
-          {quoted(profile.coreStack)}
-        </span>
-        <span>]</span>
-        <span style={{ marginLeft: 32, color: colors.accent }}>$ golf</span>
+        {(
+          [
+            ["stack", profile.coreStack],
+            ["focus", profile.focus],
+          ] as const
+        ).map(([key, items]) => (
+          <div key={key} style={{ display: "flex" }}>
+            <span style={{ color: colors.key }}>{key}</span>
+            <span>: [</span>
+            <span style={{ color: colors.string }}>{quoted(items)}</span>
+            <span>]</span>
+          </div>
+        ))}
       </div>
     </div>,
     size,

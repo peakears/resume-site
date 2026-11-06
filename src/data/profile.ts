@@ -86,8 +86,8 @@ export const profile: Profile = {
     "I prioritize reliability, secure handling of sensitive data, and strong automated test coverage. I use AI-assisted development tools to deliver efficiently without compromising quality.",
   ],
   headshot: { src: "/headshot.jpg", alt: "Patrick Kearney" },
-  coreStack: ["Java", "TypeScript", "AWS"],
-  focus: ["payments", "tax", "integrations"],
+  coreStack: ["Java", "Spring Boot", "TypeScript", "AWS"],
+  focus: ["payments", "tax", "integrations", "AI-assisted development"],
   careerStart: "2022-01",
   email: "patrick.kearney27@gmail.com",
   socials: [
