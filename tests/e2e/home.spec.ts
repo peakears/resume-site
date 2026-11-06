@@ -192,4 +192,14 @@ test.describe("home page", () => {
     await expect(page.getByRole("figure")).toBeHidden();
     await expect(page.getByRole("button", { name: /skills/ })).toBeHidden();
   });
+
+  test("loads the headshot in the hero", async ({ page }) => {
+    test.skip(!profile.headshot, "No headshot configured");
+    await page.goto("/");
+    const image = page.getByRole("img", { name: profile.headshot!.alt });
+    await expect(image).toBeVisible();
+    expect(
+      await image.evaluate((img: HTMLImageElement) => img.naturalWidth),
+    ).toBeGreaterThan(0);
+  });
 });

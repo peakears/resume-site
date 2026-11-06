@@ -85,6 +85,7 @@ export const profile: Profile = {
     "I work across Java and TypeScript services on AWS, focusing on payment-provider integrations, tax, and modernizing legacy platforms. Recent work includes designing a shared Tax API for internal teams, building a commerce platform on MedusaJS, and migrating long-running Java services to Java 17 and serverless TypeScript.",
     "I prioritize reliability, secure handling of sensitive data, and strong automated test coverage. I use AI-assisted development tools to deliver efficiently without compromising quality.",
   ],
+  headshot: { src: "/headshot.jpg", alt: "Patrick Kearney" },
   coreStack: ["Java", "TypeScript", "AWS"],
   focus: ["payments", "tax", "integrations"],
   careerStart: "2022-01",
