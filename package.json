@@ -17,6 +17,7 @@
     "preview": "serve out -l 4173",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run test:e2e",
     "resume:pdf": "next build && node scripts/generate-resume-pdf.mts",
+    "resume:check": "next build && node scripts/check-resume-pdf.mts",
     "hub:build": "node scripts/build-hub.mts",
     "hub:preview": "npm run hub:build && serve hub/dist -l 4175"
   },
@@ -42,6 +43,7 @@
     "eslint-config-next": "16.4.5",
     "geist": "^1.9.2",
     "jsdom": "^30.1.3",
+    "pdfjs-dist": "^6.5.438",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "serve": "^14.2.6",
