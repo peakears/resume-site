@@ -16,7 +16,9 @@
     "test:e2e": "playwright test",
     "preview": "serve out -l 4173",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run test:e2e",
-    "resume:pdf": "next build && node scripts/generate-resume-pdf.mts"
+    "resume:pdf": "next build && node scripts/generate-resume-pdf.mts",
+    "hub:build": "node scripts/build-hub.mts",
+    "hub:preview": "npm run hub:build && serve hub/dist -l 4175"
   },
   "dependencies": {
     "next": "16.4.5",

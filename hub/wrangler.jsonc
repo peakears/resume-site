@@ -1,0 +1,15 @@
+// Cloudflare Worker for the hub page at patrickkearney.dev: static files only.
+// Build from the repo root with `npm run hub:build`, then deploy with
+// `npx wrangler deploy --config hub/wrangler.jsonc`.
+// https://developers.cloudflare.com/workers/static-assets/
+{
+  "name": "patrickkearney-hub",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+  },
+  "observability": {
+    "enabled": false,
+  },
+}
