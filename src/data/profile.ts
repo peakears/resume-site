@@ -288,7 +288,7 @@ export const profile: Profile = {
     },
   ],
   resumePdf: "/resume.pdf",
-  siteUrl: "https://patrickkearney.dev",
+  siteUrl: "https://home.patrickkearney.dev",
   projects: [
     {
       name: "This Website",

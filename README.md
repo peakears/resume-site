@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/peakears/resume-site/actions/workflows/ci.yml/badge.svg)](https://github.com/peakears/resume-site/actions/workflows/ci.yml)
 
-**Live at [patrickkearney.dev](https://patrickkearney.dev)**
+**Live at [home.patrickkearney.dev](https://home.patrickkearney.dev)**
 
 My personal resume and portfolio site, built with **Next.js 16 (App Router)**, **React 19**, **TypeScript** and **Tailwind CSS v4**. It's statically exported, so it can be hosted anywhere for free.
 
@@ -85,7 +85,7 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fe
 
 ## Deployment
 
-Hosted on **Cloudflare Workers** (static assets) with the custom domain `patrickkearney.dev`. Cloudflare builds straight from GitHub:
+Hosted on **Cloudflare Workers** (static assets) with the custom domain `home.patrickkearney.dev`. Cloudflare builds straight from GitHub:
 
 | Setting           | Value                        |
 | ----------------- | ---------------------------- |
@@ -110,7 +110,8 @@ To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or 
 - [x] Fill in real resume content
 - [x] GitHub Actions CI on every PR
 - [x] Branch protection on `main` and `develop`
-- [x] Custom domain: patrickkearney.dev
+- [x] Custom domain: home.patrickkearney.dev
+- [ ] Hub page at patrickkearney.dev linking to the resume and profiles
 - [x] Deploy on Cloudflare with analytics
 - [x] JSON-LD structured data for search engines
 - [x] Interactive hero terminal with a mini-golf game (`golf`)
