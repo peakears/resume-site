@@ -7,6 +7,7 @@ export interface TerminalData {
   email: string;
   socials: Link[];
   resumePdf: string;
+  hubUrl: string;
   skills: SkillGroup[];
   experience: Role[];
 }
@@ -34,6 +35,7 @@ export const COMMANDS = [
   { name: "skills", description: "what I work with" },
   { name: "contact", description: "how to reach me" },
   { name: "resume", description: "download my resume (PDF)" },
+  { name: "hub", description: "all my links, on one page" },
   { name: "golf", description: "play a quick round of mini golf" },
   { name: "clear", description: "clear the screen" },
 ] as const;
@@ -98,6 +100,16 @@ export function runCommand(input: string, data: TerminalData): CommandResult {
             text: "Download resume (PDF)",
             href: data.resumePdf,
             download: true,
+          },
+        ],
+      };
+    case "hub":
+      return {
+        lines: [
+          {
+            kind: "link",
+            text: new URL(data.hubUrl).host,
+            href: data.hubUrl,
           },
         ],
       };

@@ -43,7 +43,7 @@ export default function Home() {
           }
         />
         <Section id="about" title="About" hideInPrint>
-          <div className="max-w-2xl space-y-4 text-lg leading-relaxed print:max-w-none print:text-base">
+          <div className="reveal max-w-2xl space-y-4 text-lg leading-relaxed print:max-w-none print:text-base">
             <p className="text-xl font-semibold tracking-tight sm:text-2xl">
               {profile.aboutHeadline}
             </p>
@@ -63,8 +63,19 @@ export default function Home() {
         />
       </main>
       <footer className="border-border text-muted border-t py-8 text-center text-sm print:hidden">
-        © {new Date().getFullYear()} {profile.name}. Built with Next.js and
-        TypeScript.
+        <p>
+          More links at{" "}
+          <a
+            href={profile.hubUrl}
+            className="text-accent underline-offset-4 hover:underline"
+          >
+            {new URL(profile.hubUrl).host}
+          </a>
+        </p>
+        <p className="mt-2">
+          © {new Date().getFullYear()} {profile.name}. Built with Next.js and
+          TypeScript.
+        </p>
       </footer>
     </>
   );

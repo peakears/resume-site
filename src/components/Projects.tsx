@@ -9,7 +9,7 @@ export function Projects({ projects }: { projects: Project[] }) {
         {projects.map((project) => (
           <article
             key={project.name}
-            className="border-border flex flex-col rounded-lg border p-5 print:border-0 print:p-0"
+            className="reveal border-border flex flex-col rounded-lg border p-5 print:border-0 print:p-0"
           >
             <h3 className="mb-2 font-semibold print:mb-0">{project.name}</h3>
             <p className="text-muted mb-4 flex-1 leading-relaxed print:mb-1">

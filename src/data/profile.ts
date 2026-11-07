@@ -70,6 +70,8 @@ export interface Profile {
   resumePdf: string;
   /** Public URL of the live site, used for SEO and link previews */
   siteUrl: string;
+  /** The hub page at the apex domain, which links to this site and profiles */
+  hubUrl: string;
 }
 
 export const profile: Profile = {
@@ -289,6 +291,7 @@ export const profile: Profile = {
   ],
   resumePdf: "/resume.pdf",
   siteUrl: "https://home.patrickkearney.dev",
+  hubUrl: "https://patrickkearney.dev",
   projects: [
     {
       name: "This Website",

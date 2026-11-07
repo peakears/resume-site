@@ -48,6 +48,7 @@ const fixture: Profile = {
   ],
   resumePdf: "/resume.pdf",
   siteUrl: "https://jane.example",
+  hubUrl: "https://hub.jane.example",
 };
 
 describe("buildProfileJsonLd", () => {

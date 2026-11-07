@@ -263,4 +263,69 @@ test.describe("home page", () => {
     await expect(game).toContainText("Hole 2 of 3");
     await expect(game.getByRole("table", { name: "Scorecard" })).toBeVisible();
   });
+
+  test("reveals content as it scrolls into view", async ({ page }) => {
+    await page.goto("/");
+    const roles = page.locator("#experience li.reveal");
+    await expect(roles.first()).toHaveCSS("animation-name", "reveal");
+
+    // The last role starts below the fold, faded out...
+    const last = roles.last();
+    await expect(last).toHaveCSS("opacity", "0");
+    // ...and is fully visible once scrolled into view.
+    await last.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(last).toHaveCSS("opacity", "1");
+  });
+
+  test("skips the reveal for reduced motion and in print", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    const last = page.locator("#experience li.reveal").last();
+    await expect(last).toHaveCSS("animation-name", "none");
+    await expect(last).toHaveCSS("opacity", "1");
+
+    await page.emulateMedia({ reducedMotion: "no-preference", media: "print" });
+    await expect(last).toHaveCSS("animation-name", "none");
+  });
+
+  test("highlights the current section in the nav while scrolling", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "Section nav is hidden on small screens");
+    await page.goto("/");
+    const nav = page.getByRole("navigation", { name: "Main" });
+    const current = nav.locator('[aria-current="location"]');
+
+    // The hero is above every section.
+    await expect(current).toHaveCount(0);
+
+    await nav.getByRole("link", { name: "Skills" }).click();
+    await expect(current).toHaveText("Skills");
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(current).toHaveText("Contact");
+  });
+
+  test("links back to the hub page from the footer", async ({ page }) => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("contentinfo").getByRole("link", {
+        name: new URL(profile.hubUrl).host,
+      }),
+    ).toHaveAttribute("href", profile.hubUrl);
+  });
+
+  test("serves the PK icons", async ({ page, request }) => {
+    await page.goto("/");
+    await expect(
+      page.locator('link[rel="icon"][type="image/svg+xml"]'),
+    ).toHaveCount(1);
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
+    for (const path of ["/favicon.ico", "/icon.svg", "/apple-icon.png"]) {
+      const response = await request.get(path);
+      expect(response.ok(), path).toBe(true);
+    }
+    expect(await (await request.get("/icon.svg")).text()).toContain(">PK<");
+  });
 });

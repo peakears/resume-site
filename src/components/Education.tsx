@@ -6,7 +6,7 @@ export function Education({ entries }: { entries: EducationEntry[] }) {
     <Section id="education" title="Education">
       <ul className="space-y-6">
         {entries.map((entry) => (
-          <li key={`${entry.institution}-${entry.program}`}>
+          <li key={`${entry.institution}-${entry.program}`} className="reveal">
             <article>
               <h3 className="text-lg font-semibold">
                 {entry.program}{" "}
