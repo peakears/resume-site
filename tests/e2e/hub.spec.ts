@@ -4,7 +4,7 @@ import { profile } from "../../src/data/profile";
 
 /** The hub page for patrickkearney.dev (see playwright.config.ts). */
 test.describe("hub page", () => {
-  test("links to the resume, PDF, profiles and email", async ({ page }) => {
+  test("links to the resume, profiles and email", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(new RegExp(profile.name));
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
@@ -15,13 +15,13 @@ test.describe("hub page", () => {
     const href = (name: RegExp) =>
       nav.getByRole("link", { name }).getAttribute("href");
     expect(await href(/^Resume/)).toBe(`${profile.siteUrl}/`);
-    expect(await href(/^Download resume/)).toBe(
-      `${profile.siteUrl}${profile.resumePdf}`,
-    );
     for (const social of profile.socials) {
       expect(await href(new RegExp(`^${social.label}`))).toBe(social.href);
     }
     expect(await href(/^Email/)).toBe(`mailto:${profile.email}`);
+
+    // Resume, each social profile and email; nothing else.
+    await expect(nav.getByRole("link")).toHaveCount(profile.socials.length + 2);
   });
 
   test("loads the headshot, stylesheet and favicon", async ({

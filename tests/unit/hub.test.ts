@@ -31,18 +31,13 @@ describe("escapeHtml", () => {
 });
 
 describe("hubLinks", () => {
-  it("links the resume first, then the PDF, socials and email", () => {
+  it("links the resume first, then socials and email", () => {
     expect(hubLinks(profile)).toEqual([
       {
         label: "Resume",
         detail: "Experience, skills and projects",
         href: "https://home.example.dev/",
         primary: true,
-      },
-      {
-        label: "Download resume (PDF)",
-        detail: "One page, ready to print",
-        href: "https://home.example.dev/resume.pdf",
       },
       {
         label: "GitHub",

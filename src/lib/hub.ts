@@ -42,11 +42,6 @@ export function hubLinks(profile: Profile): HubLink[] {
       href: `${profile.siteUrl}/`,
       primary: true,
     },
-    {
-      label: "Download resume (PDF)",
-      detail: "One page, ready to print",
-      href: `${profile.siteUrl}${profile.resumePdf}`,
-    },
     ...profile.socials.map((social) => ({
       label: social.label,
       detail: displayUrl(social.href),

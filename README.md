@@ -107,7 +107,7 @@ To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or 
 
 ## Hub page (patrickkearney.dev)
 
-The apex domain serves a small hub page that links to the resume, the PDF, GitHub, LinkedIn and email. It's plain HTML and CSS with no framework, generated from the same `profile.ts` by [`src/lib/hub.ts`](src/lib/hub.ts), so the two sites never disagree.
+The apex domain serves a small hub page that links to the resume, GitHub, LinkedIn and email. It's plain HTML and CSS with no framework, generated from the same `profile.ts` by [`src/lib/hub.ts`](src/lib/hub.ts), so the two sites never disagree.
 
 ```bash
 npm run hub:build     # writes hub/dist/
