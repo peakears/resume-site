@@ -34,100 +34,88 @@ async function loadHeadshot(): Promise<string | null> {
   return `data:image/${type};base64,${file.toString("base64")}`;
 }
 
+/** Geist from the `geist` package, so text renders in the site's font. */
+const font = (path: string) =>
+  readFile(join(process.cwd(), "node_modules", "geist", "dist", "fonts", path));
+
 export default async function Image() {
   const domain = new URL(profile.siteUrl).host;
   const headshot = await loadHeadshot();
+  const [regular, bold, mono] = await Promise.all([
+    font("geist-sans/Geist-Regular.ttf"),
+    font("geist-sans/Geist-Bold.ttf"),
+    font("geist-mono/GeistMono-Medium.ttf"),
+  ]);
 
+  // LinkedIn and Slack show this card at roughly half size and re-compress
+  // it, so it uses a few large, high-contrast elements and no small text.
   return new ImageResponse(
     <div
       style={{
         width: "100%",
         height: "100%",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: 72,
+        alignItems: "center",
+        padding: "0 80px",
         background: `linear-gradient(160deg, ${colors.background} 55%, ${colors.surface} 100%)`,
         color: colors.foreground,
+        fontFamily: "Geist",
       }}
     >
-      <div style={{ display: "flex", fontSize: 30, color: colors.accent }}>
-        {"<"}
-        {domain}
-        {" />"}
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center" }}>
-        {headshot && (
-          <img
-            src={headshot}
-            alt=""
-            width={220}
-            height={220}
-            style={{
-              borderRadius: 110,
-              border: `6px solid ${colors.accent}`,
-              marginRight: 48,
-            }}
-          />
-        )}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -2 }}>
-            {profile.name}
-          </div>
-          <div style={{ fontSize: 34, color: colors.muted, marginTop: 10 }}>
-            {`${profile.title} · ${profile.location}`}
-          </div>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+        <div
+          style={{
+            fontFamily: "Geist Mono",
+            fontSize: 30,
+            color: colors.accent,
+          }}
+        >
+          {domain}
+        </div>
+        <div
+          style={{
+            fontSize: 92,
+            fontWeight: 700,
+            letterSpacing: -3,
+            lineHeight: 1.05,
+            marginTop: 20,
+          }}
+        >
+          {profile.name}
+        </div>
+        <div style={{ fontSize: 46, marginTop: 14 }}>{profile.title}</div>
+        <div
+          style={{
+            fontSize: 36,
+            fontWeight: 700,
+            color: colors.accent,
+            marginTop: 36,
+          }}
+        >
+          {profile.coreStack.join(" · ")}
         </div>
       </div>
-
-      {/* A nod to the terminal in the hero. */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          padding: "20px 28px",
-          borderRadius: 16,
-          border: `2px solid ${colors.border}`,
-          background: colors.terminal,
-          fontSize: 28,
-          lineHeight: 1.5,
-          color: colors.muted,
-        }}
-      >
-        {(
-          [
-            ["stack", profile.coreStack],
-            ["focus", profile.focus],
-          ] as const
-        ).map(([key, items]) => (
-          <div key={key} style={{ display: "flex" }}>
-            <span style={{ color: colors.key, flexShrink: 0 }}>{key}</span>
-            <span style={{ marginRight: 10, flexShrink: 0 }}>:</span>
-            {/* Items wrap as whole words, lining up under the first one. */}
-            <div style={{ display: "flex", flexWrap: "wrap", flex: 1 }}>
-              {items.map((item, i) => {
-                const last = i === items.length - 1;
-                return (
-                  <div
-                    key={item}
-                    style={{
-                      display: "flex",
-                      flexShrink: 0,
-                      marginRight: last ? 0 : 12,
-                    }}
-                  >
-                    {i === 0 && <span>[</span>}
-                    <span style={{ color: colors.string }}>{`"${item}"`}</span>
-                    <span>{last ? "]" : ","}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+      {headshot && (
+        <img
+          src={headshot}
+          alt=""
+          width={300}
+          height={300}
+          style={{
+            borderRadius: 150,
+            border: `8px solid ${colors.accent}`,
+            marginLeft: 56,
+          }}
+        />
+      )}
     </div>,
-    size,
+    {
+      ...size,
+      fonts: [
+        { name: "Geist", data: regular, weight: 400, style: "normal" },
+        { name: "Geist", data: bold, weight: 700, style: "normal" },
+        { name: "Geist Mono", data: mono, weight: 500, style: "normal" },
+      ],
+    },
   );
 }
