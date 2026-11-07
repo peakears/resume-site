@@ -33,6 +33,7 @@ npm run dev                       # http://localhost:3000
 | `npm run lint`          | ESLint (Next.js core-web-vitals + TypeScript rules)       |
 | `npm run format`        | Format with Prettier (with Tailwind class sorting)        |
 | `npm run resume:pdf`    | Build the site and regenerate `public/resume.pdf` from it |
+| `npm run resume:check`  | Fail if the PDF isn't one page or is out of date          |
 | `npm run check`         | Everything above, the same gate CI will run               |
 
 ## Project structure
@@ -59,7 +60,9 @@ The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`
 
 ### PDF resume
 
-`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF.
+`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF. It fails if the PDF runs past one page.
+
+The PDF is committed because Cloudflare's build has no browser to render it. CI guards it instead: the **Resume PDF** job runs `npm run resume:check`, which renders a fresh PDF and fails if it isn't one page or if its text differs from the committed `public/resume.pdf`. Text is compared instead of bytes, because PDF bytes include timestamps. The fresh PDF is uploaded as the `resume-pdf` workflow artifact so you can review it.
 
 ## Testing strategy
 

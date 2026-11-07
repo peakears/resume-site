@@ -60,3 +60,27 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  resume-pdf:
+    name: Resume PDF
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Check the PDF is one page and up to date
+        run: npm run resume:check
+      - name: Upload generated PDF
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: resume-pdf
+          path: test-results/resume.pdf
+          if-no-files-found: ignore
+          retention-days: 7
