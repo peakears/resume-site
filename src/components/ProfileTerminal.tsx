@@ -125,6 +125,7 @@ export function ProfileTerminal({
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [golfOpen, setGolfOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -235,20 +236,39 @@ export function ProfileTerminal({
           <label htmlFor="terminal-input" className="sr-only">
             Terminal command
           </label>
-          <Prompt />
-          <input
-            ref={inputRef}
-            id="terminal-input"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onKeyDown={onKeyDown}
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-            enterKeyHint="go"
-            className="caret-terminal-key min-w-0 flex-1 bg-transparent text-base outline-none sm:text-[0.75rem]"
-          />
+          {/* A margin, not a space: flex layout would collapse the space. */}
+          <span
+            aria-hidden="true"
+            className="text-terminal-muted mr-[1ch] select-none"
+          >
+            $
+          </span>
+          <span className="relative flex min-w-0 flex-1 text-base sm:text-[0.75rem]">
+            <input
+              ref={inputRef}
+              id="terminal-input"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={onKeyDown}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              autoComplete="off"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="go"
+              className="caret-terminal-key min-w-0 flex-1 bg-transparent outline-none"
+            />
+            {/* Until someone clicks in, a blinking block cursor hints that the
+                terminal takes input. The real caret takes over on focus. */}
+            {!focused && !input && (
+              <span
+                aria-hidden="true"
+                data-terminal-cursor
+                className="bg-terminal-key animate-blink pointer-events-none absolute top-1/2 left-0 h-[1.15em] w-[0.6em] -translate-y-1/2 motion-reduce:animate-none"
+              />
+            )}
+          </span>
         </form>
       </div>
       {golfOpen && (

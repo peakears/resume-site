@@ -8,7 +8,7 @@ export function Experience({ roles }: { roles: Role[] }) {
     <Section id="experience" title="Experience">
       <ol className="border-border space-y-10 border-l pl-6 print:space-y-4 print:border-0 print:pl-0">
         {roles.map((role) => (
-          <li key={`${role.company}-${role.start}`} className="relative">
+          <li key={`${role.company}-${role.start}`} className="reveal relative">
             <span
               aria-hidden="true"
               className="bg-accent absolute top-2 -left-[29px] h-2.5 w-2.5 rounded-full print:hidden"

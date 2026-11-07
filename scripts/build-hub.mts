@@ -16,8 +16,10 @@ const out = join(root, "hub", "dist");
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 
-// Stylesheet, favicon, headers and robots.txt.
+// Stylesheet, headers and robots.txt.
 await cp(join(root, "hub", "static"), out, { recursive: true });
+// Same icon as the resume site, from one source file.
+await copyFile(join(root, "src", "app", "icon.svg"), join(out, "favicon.svg"));
 
 if (profile.headshot) {
   await copyFile(

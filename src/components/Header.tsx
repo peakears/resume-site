@@ -1,3 +1,4 @@
+import { SectionNav } from "./SectionNav";
 import { ThemeToggle } from "./ThemeToggle";
 
 export const NAV_ITEMS = [
@@ -16,17 +17,7 @@ export function Header({ name }: { name: string }) {
         <a href="#top" className="font-semibold tracking-tight">
           {name}
         </a>
-        <nav aria-label="Main" className="hidden md:block">
-          <ul className="text-muted flex gap-6 text-sm">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.id}>
-                <a href={`#${item.id}`} className="hover:text-foreground">
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <SectionNav items={NAV_ITEMS} />
         <ThemeToggle />
       </div>
     </header>

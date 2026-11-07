@@ -8,8 +8,6 @@ import type { Profile } from "@/data/profile";
  * Type-only imports keep this file runnable by plain Node (scripts/build-hub.mts).
  */
 
-export const HUB_URL = "https://patrickkearney.dev";
-
 export interface HubLink {
   label: string;
   /** Short line under the label */
@@ -78,11 +76,11 @@ export function renderHubPage(profile: Profile): string {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
-    <link rel="canonical" href="${HUB_URL}/">
+    <link rel="canonical" href="${escapeHtml(profile.hubUrl)}/">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <meta name="color-scheme" content="light dark">
     <meta property="og:type" content="profile">
-    <meta property="og:url" content="${HUB_URL}/">
+    <meta property="og:url" content="${escapeHtml(profile.hubUrl)}/">
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:image" content="${escapeHtml(profile.siteUrl)}/opengraph-image">
