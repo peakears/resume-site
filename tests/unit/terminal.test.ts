@@ -6,6 +6,7 @@ const data: TerminalData = {
   email: "jane@example.com",
   socials: [{ label: "GitHub", href: "https://github.com/jane" }],
   resumePdf: "/resume.pdf",
+  hubUrl: "https://jane.example",
   skills: [
     { category: "Languages", skills: ["Java", "Go"], featured: true },
     { category: "Tools", skills: ["Git"] },
@@ -71,6 +72,12 @@ describe("runCommand", () => {
       href: "/resume.pdf",
       download: true,
     });
+  });
+
+  it("links to the hub page", () => {
+    expect(runCommand("hub", data).lines).toEqual([
+      { kind: "link", text: "jane.example", href: "https://jane.example" },
+    ]);
   });
 
   it("starts the golf game and clears the screen", () => {

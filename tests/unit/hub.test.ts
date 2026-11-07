@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Profile } from "@/data/profile";
 import {
-  HUB_URL,
   escapeHtml,
   hubLinks,
   renderHubPage,
@@ -19,6 +18,7 @@ const profile = {
   ],
   resumePdf: "/resume.pdf",
   siteUrl: "https://home.example.dev",
+  hubUrl: "https://example.dev",
   headshot: { src: "/headshot.jpg", alt: "Jane Doe" },
 } as Profile;
 
@@ -67,7 +67,9 @@ describe("renderHubPage", () => {
   });
 
   it("declares the apex as canonical and reuses the resume's preview image", () => {
-    expect(html).toContain(`<link rel="canonical" href="${HUB_URL}/">`);
+    expect(html).toContain(
+      '<link rel="canonical" href="https://example.dev/">',
+    );
     expect(html).toContain(
       '<meta property="og:image" content="https://home.example.dev/opengraph-image">',
     );

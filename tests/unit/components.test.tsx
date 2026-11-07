@@ -73,6 +73,7 @@ const fixture: Profile = {
   ],
   resumePdf: "/resume.pdf",
   siteUrl: "https://example.dev",
+  hubUrl: "https://hub.example.dev",
 };
 
 describe("Hero", () => {

@@ -63,8 +63,19 @@ export default function Home() {
         />
       </main>
       <footer className="border-border text-muted border-t py-8 text-center text-sm print:hidden">
-        © {new Date().getFullYear()} {profile.name}. Built with Next.js and
-        TypeScript.
+        <p>
+          More links at{" "}
+          <a
+            href={profile.hubUrl}
+            className="text-accent underline-offset-4 hover:underline"
+          >
+            {new URL(profile.hubUrl).host}
+          </a>
+        </p>
+        <p className="mt-2">
+          © {new Date().getFullYear()} {profile.name}. Built with Next.js and
+          TypeScript.
+        </p>
       </footer>
     </>
   );
