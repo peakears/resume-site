@@ -105,6 +105,27 @@ To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or 
 - The page embeds [JSON-LD](https://json-ld.org/) structured data (a schema.org `ProfilePage` about a `Person`), built from `profile.ts` by [`src/lib/jsonLd.ts`](src/lib/jsonLd.ts). Check it with the [Schema Markup Validator](https://validator.schema.org/).
 - Traffic is measured with Cloudflare Web Analytics, which is cookieless, so there's no consent banner.
 
+## Hub page (patrickkearney.dev)
+
+The apex domain serves a small hub page that links to the resume, the PDF, GitHub, LinkedIn and email. It's plain HTML and CSS with no framework, generated from the same `profile.ts` by [`src/lib/hub.ts`](src/lib/hub.ts), so the two sites never disagree.
+
+```bash
+npm run hub:build     # writes hub/dist/
+npm run hub:preview   # serves it on http://localhost:4175
+```
+
+It's deployed as a **second Cloudflare Worker** ([`hub/wrangler.jsonc`](hub/wrangler.jsonc)) from this repository:
+
+| Setting           | Value                                             |
+| ----------------- | ------------------------------------------------- |
+| Root directory    | `/` (repository root)                             |
+| Build command     | `npm run hub:build`                               |
+| Deploy command    | `npx wrangler deploy --config hub/wrangler.jsonc` |
+| Production branch | `main`                                            |
+| Custom domain     | `patrickkearney.dev`                              |
+
+Playwright tests it alongside the resume site (`hub-desktop` and `hub-mobile` projects), including axe scans in light and dark mode.
+
 ## Roadmap
 
 - [x] Fill in real resume content
