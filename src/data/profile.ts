@@ -109,8 +109,6 @@ export const profile: Profile = {
       start: "2026-10",
       end: null,
       highlights: [
-        "Software engineer on the Internal Apps – Finance team in the Digital Services Group.",
-        "Joined when CARFAX moved its development teams to its parent company, Mobility Global.",
         "Use Claude Code as an agentic AI coding tool to ship faster and raise code quality.",
       ],
       tech: [],
@@ -124,18 +122,11 @@ export const profile: Profile = {
       highlights: [
         "Helped plan, design and build a new payments and tax platform on the open-source MedusaJS commerce framework, using its built-in data model to speed up delivery.",
         "Built and maintained services covering cart creation and the full payment lifecycle (authorize, capture, refund) across multiple payment providers, using synchronous and asynchronous workflows.",
-        "Implemented per-team payment-provider configuration, managing multiple credentials per processor with AWS Systems Manager Parameter Store.",
+        "Implemented per-team payment-provider configuration, managing multiple credentials per processor with AWS Secrets Manager.",
         "Persisted customer, cart, order, product, payment, address and custom data in PostgreSQL.",
         "Designed a Java 17 Tax API, first used directly by two teams, then centralized behind checkout APIs that let product teams create, update and complete payment sessions.",
       ],
-      tech: [
-        "Java 17",
-        "TypeScript",
-        "MedusaJS",
-        "PostgreSQL",
-        "AWS SSM",
-        "Vertex",
-      ],
+      tech: ["Java 17", "TypeScript", "MedusaJS", "PostgreSQL", "Vertex"],
     },
     {
       company: "CARFAX",
@@ -149,7 +140,13 @@ export const profile: Profile = {
         "Rewrote a legacy Java 8 application as a TypeScript AWS Lambda and cut traffic over at the API gateway with zero downtime. Added automatic 30-day rotation of its encryption key.",
         "Built a Google Pay proof of concept on the checkout page and ran an A/B test to measure its value. The data showed it wasn't worth the added complexity, so we chose not to roll it out.",
       ],
-      tech: ["Java", "TypeScript", "AWS Lambda", "AWS Secrets Manager"],
+      tech: [
+        "Java",
+        "Spring Boot",
+        "TypeScript",
+        "AWS Lambda",
+        "AWS Secrets Manager",
+      ],
     },
   ],
   skills: [
@@ -192,7 +189,6 @@ export const profile: Profile = {
         "EC2",
         "IAM",
         "KMS",
-        "Systems Manager (SSM)",
         "Secrets Manager",
         "CloudWatch",
       ],
