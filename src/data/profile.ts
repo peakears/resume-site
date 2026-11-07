@@ -126,7 +126,7 @@ export const profile: Profile = {
         "Built and maintained services covering cart creation and the full payment lifecycle (authorize, capture, refund) across multiple payment providers, using synchronous and asynchronous workflows.",
         "Implemented per-team payment-provider configuration, managing multiple credentials per processor with AWS Systems Manager Parameter Store.",
         "Persisted customer, cart, order, product, payment, address and custom data in PostgreSQL.",
-        "Designed a Java 17 Tax API that lets internal teams quote and record sales tax through one shared service.",
+        "Designed a Java 17 Tax API, first used directly by two teams, then centralized behind checkout APIs that let product teams create, update and complete payment sessions.",
       ],
       tech: [
         "Java 17",
@@ -277,7 +277,13 @@ export const profile: Profile = {
       category: "AI-Assisted Development",
       skills: ["Claude Code", "GitHub Copilot"],
     },
-    { category: "Currently Learning", skills: ["Python", "Go", "Rust"] },
+    {
+      category: "Currently Learning",
+      skills: [
+        "Agentic AI-first development",
+        "AWS ML Engineer – Associate (studying)",
+      ],
+    },
   ],
   education: [
     {
