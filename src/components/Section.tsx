@@ -32,7 +32,7 @@ export function Section({
       <div className="mx-auto max-w-5xl px-4 sm:px-6 print:max-w-none print:px-0">
         <h2
           id={headingId}
-          className="after:bg-border print:border-border mb-10 flex items-baseline gap-3 text-3xl font-bold tracking-tight after:h-px after:flex-1 after:self-center sm:text-4xl print:mb-2 print:block print:border-b print:pb-0.5 print:text-base print:font-semibold print:tracking-wide print:uppercase print:after:hidden"
+          className="reveal after:bg-border print:border-border mb-10 flex items-baseline gap-3 text-3xl font-bold tracking-tight after:h-px after:flex-1 after:self-center sm:text-4xl print:mb-2 print:block print:border-b print:pb-0.5 print:text-base print:font-semibold print:tracking-wide print:uppercase print:after:hidden"
         >
           {number && (
             <span

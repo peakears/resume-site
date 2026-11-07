@@ -302,6 +302,25 @@ describe("ProfileTerminal", () => {
     );
   });
 
+  it("shows a blinking cursor until the prompt is focused or has text", async () => {
+    const user = userEvent.setup();
+    const { container } = terminal({});
+    const cursor = () => container.querySelector("[data-terminal-cursor]");
+    expect(cursor()).toHaveAttribute("aria-hidden", "true");
+
+    const input = screen.getByRole("textbox", { name: "Terminal command" });
+    await user.click(input);
+    expect(cursor()).toBeNull();
+
+    await user.type(input, "he");
+    await user.tab();
+    expect(cursor()).toBeNull();
+
+    await user.clear(input);
+    await user.tab();
+    expect(cursor()).not.toBeNull();
+  });
+
   it("opens the golf game", async () => {
     const user = userEvent.setup();
     terminal({});

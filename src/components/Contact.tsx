@@ -13,11 +13,11 @@ const secondaryButton =
 export function Contact({ email, socials, resumePdf }: ContactProps) {
   return (
     <Section id="contact" title="Contact" hideInPrint>
-      <p className="mb-6 max-w-xl text-lg leading-relaxed print:hidden">
+      <p className="reveal mb-6 max-w-xl text-lg leading-relaxed print:hidden">
         I&apos;m open to new opportunities. The best way to reach me is by
         email.
       </p>
-      <ul className="flex flex-wrap gap-4 print:flex-col print:gap-1">
+      <ul className="reveal flex flex-wrap gap-4 print:flex-col print:gap-1">
         <li>
           <a
             href={`mailto:${email}`}

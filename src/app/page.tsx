@@ -43,7 +43,7 @@ export default function Home() {
           }
         />
         <Section id="about" title="About" hideInPrint>
-          <div className="max-w-2xl space-y-4 text-lg leading-relaxed print:max-w-none print:text-base">
+          <div className="reveal max-w-2xl space-y-4 text-lg leading-relaxed print:max-w-none print:text-base">
             <p className="text-xl font-semibold tracking-tight sm:text-2xl">
               {profile.aboutHeadline}
             </p>

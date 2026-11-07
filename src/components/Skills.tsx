@@ -23,7 +23,7 @@ export function Skills({ groups }: { groups: SkillGroup[] }) {
   const row = (group: SkillGroup, collapsed: boolean) => (
     <div
       key={group.category}
-      className={`border-border gap-x-6 gap-y-2 border-b py-4 last:border-b-0 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-baseline print:flex print:items-baseline print:gap-2 print:border-0 print:py-0 ${collapsed ? "hidden" : "grid"}`}
+      className={`reveal border-border gap-x-6 gap-y-2 border-b py-4 last:border-b-0 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-baseline print:flex print:items-baseline print:gap-2 print:border-0 print:py-0 ${collapsed ? "hidden" : "grid"}`}
     >
       <h3 className="font-semibold print:shrink-0 print:after:content-[':']">
         {group.category}

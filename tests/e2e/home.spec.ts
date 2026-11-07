@@ -263,4 +263,28 @@ test.describe("home page", () => {
     await expect(game).toContainText("Hole 2 of 3");
     await expect(game.getByRole("table", { name: "Scorecard" })).toBeVisible();
   });
+
+  test("reveals content as it scrolls into view", async ({ page }) => {
+    await page.goto("/");
+    const roles = page.locator("#experience li.reveal");
+    await expect(roles.first()).toHaveCSS("animation-name", "reveal");
+
+    // The last role starts below the fold, faded out...
+    const last = roles.last();
+    await expect(last).toHaveCSS("opacity", "0");
+    // ...and is fully visible once scrolled into view.
+    await last.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(last).toHaveCSS("opacity", "1");
+  });
+
+  test("skips the reveal for reduced motion and in print", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    const last = page.locator("#experience li.reveal").last();
+    await expect(last).toHaveCSS("animation-name", "none");
+    await expect(last).toHaveCSS("opacity", "1");
+
+    await page.emulateMedia({ reducedMotion: "no-preference", media: "print" });
+    await expect(last).toHaveCSS("animation-name", "none");
+  });
 });
