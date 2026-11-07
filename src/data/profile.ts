@@ -126,7 +126,14 @@ export const profile: Profile = {
         "Persisted customer, cart, order, product, payment, address and custom data in PostgreSQL.",
         "Designed a Java 17 Tax API, first used directly by two teams, then centralized behind checkout APIs that let product teams create, update and complete payment sessions.",
       ],
-      tech: ["Java 17", "TypeScript", "MedusaJS", "PostgreSQL", "Vertex"],
+      tech: [
+        "Java 17",
+        "TypeScript",
+        "MedusaJS",
+        "PostgreSQL",
+        "AWS Secrets Manager",
+        "Vertex",
+      ],
     },
     {
       company: "CARFAX",
