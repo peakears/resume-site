@@ -30,6 +30,6 @@ The site uses semver, released automatically by semantic-release (`.github/workf
 - `feat!:` or a `BREAKING CHANGE:` footer → major release. Reserve it for a deliberate overhaul.
 - `docs:`, `test:`, `ci:`, `build:`, `refactor:`, `style:`, `chore:` → no release on their own and hidden from the notes.
 - Write the subject for a reader of the release notes: lower-case, imperative, no trailing period, e.g. `feat: add Secrets Manager to the CARFAX role`.
-- CI's commitlint job rejects PRs with non-conventional commits. Run `npm run commitlint` before pushing.
+- A husky `commit-msg` hook runs commitlint on every commit, and `pre-commit` runs lint-staged (ESLint `--fix` + Prettier on staged files). If a commit is rejected, fix the message or the lint error and commit again; never use `--no-verify`. CI's commitlint job checks the whole PR as well (`npm run commitlint` locally).
 - Merge PRs with merge commits, not squash, so each commit appears in the notes.
 - Never create tags or releases by hand, never edit `version` in `package.json` (it's a placeholder), and don't add a `CHANGELOG.md`. Tags and GitHub Releases are the source of truth.
