@@ -64,6 +64,10 @@ The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`
 
 The PDF is committed because Cloudflare's build has no browser to render it. CI guards it instead: the **Resume PDF** job runs `npm run resume:check`, which renders a fresh PDF and fails if it isn't one page or if its text differs from the committed `public/resume.pdf`. Text is compared instead of bytes, because PDF bytes include timestamps. The fresh PDF is uploaded as the `resume-pdf` workflow artifact so you can review it.
 
+### Formatting
+
+Prettier formats everything, with the Tailwind plugin sorting classes; CI fails on unformatted files. For [Claude Code](https://claude.com/claude-code), a project hook in [`.claude/settings.json`](.claude/settings.json) runs Prettier on each file Claude edits or writes ([`.claude/hooks/format.mjs`](.claude/hooks/format.mjs)), using the repo's pinned version and config.
+
 ## Testing strategy
 
 - **Unit (Vitest + React Testing Library):** pure helpers and each section component, rendered with a fixture profile. Queries use roles and accessible names, the way a user or screen reader finds things.
