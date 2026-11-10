@@ -34,6 +34,7 @@ npm run dev                       # http://localhost:3000
 | `npm run format`        | Format with Prettier (with Tailwind class sorting)        |
 | `npm run resume:pdf`    | Build the site and regenerate `public/resume.pdf` from it |
 | `npm run resume:check`  | Fail if the PDF isn't one page or is out of date          |
+| `npm run commitlint`    | Check this branch's commit messages against `develop`     |
 | `npm run check`         | Everything above, the same gate CI will run               |
 
 ## Project structure
@@ -77,14 +78,31 @@ The PDF is committed because Cloudflare's build has no browser to render it. CI 
 
 Both `main` and `develop` are protected: changes arrive through pull requests, and CI must pass first.
 
-Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `test:`, `docs:`, `chore:`).
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `test:`, `docs:`, `chore:`). They decide the next version number (see [Releases](#releases)), so CI lints every commit in a pull request with [commitlint](https://commitlint.js.org/).
 
 ## CI
 
-[GitHub Actions](.github/workflows/ci.yml) runs on every pull request and push to `main` and `develop`, as two parallel jobs:
+[GitHub Actions](.github/workflows/ci.yml) runs on every pull request and push to `main` and `develop`, as parallel jobs:
+
+- **Commit messages** (pull requests only): commitlint checks each commit is a valid Conventional Commit.
 
 - **Lint, types & unit tests:** type-check, ESLint, Prettier check, and Vitest with coverage.
 - **E2E tests:** builds the static site and runs Playwright on desktop and mobile. If it fails, the HTML report and traces are uploaded as an artifact.
+
+## Releases
+
+Versions follow [semver](https://semver.org/) and are cut automatically by [semantic-release](https://semantic-release.gitbook.io/) ([`.github/workflows/release.yml`](.github/workflows/release.yml), configured in [`.releaserc.json`](.releaserc.json)). When a PR from `develop` merges into `main`, it reads the commits since the last tag and picks the bump:
+
+| Commits since the last release                                   | Bump                  |
+| ---------------------------------------------------------------- | --------------------- |
+| a `BREAKING CHANGE:` footer or `!` after the type (`feat!: ...`) | major (1.4.2 → 2.0.0) |
+| at least one `feat:`                                             | minor (1.4.2 → 1.5.0) |
+| at least one `fix:` or `perf:`                                   | patch (1.4.2 → 1.4.3) |
+| only `docs:`, `test:`, `ci:`, `chore:`, `refactor:`, ...         | no release            |
+
+It then pushes a `vX.Y.Z` tag and publishes a [GitHub Release](https://github.com/peakears/resume-site/releases) whose notes list the features and fixes, with links to each commit, and attaches that version's resume PDF. Released PRs get a `released` label and a comment saying which version they shipped in.
+
+Nothing is committed back to `main`: the tags and releases are the changelog, and `version` in `package.json` stays a placeholder. To see the current version, look at the latest tag (`git describe --tags --abbrev=0`) or release.
 
 ## Deployment
 
@@ -138,6 +156,7 @@ Playwright tests it alongside the resume site (`hub-desktop` and `hub-mobile` pr
 - [ ] Hub page at patrickkearney.dev linking to the resume and profiles
 - [x] Deploy on Cloudflare with analytics
 - [x] JSON-LD structured data for search engines
+- [x] Semver releases with generated changelogs
 - [x] Interactive hero terminal with a mini-golf game (`golf`)
 - [ ] Golf-themed 404 page
 - [ ] More projects

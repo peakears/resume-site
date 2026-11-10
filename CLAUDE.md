@@ -19,4 +19,4 @@ Run `npm run check` (typecheck, lint, format check, unit tests, E2E). It must pa
 
 ## Git
 
-Work on `feature/*` branches off `develop` and open a PR into `develop`. Use Conventional Commit messages. `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.
+Work on `feature/*` branches off `develop` and open a PR into `develop`. Use Conventional Commit messages: they drive semver releases (`feat:` → minor, `fix:`/`perf:` → patch, `!` or `BREAKING CHANGE:` → major; other types don't release) and CI lints them with commitlint. Releases, tags and changelogs are created by `.github/workflows/release.yml` on merge to `main`; never tag or bump `package.json` by hand. `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.
