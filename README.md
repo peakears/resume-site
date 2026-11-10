@@ -60,7 +60,7 @@ The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`
 
 ### PDF resume
 
-`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF. It fails if the PDF runs past one page.
+`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF. It fails if the PDF runs past one page. When Claude Code edits a file that feeds the PDF (`src/data/`, `src/components/`, `page.tsx`, `layout.tsx`, `globals.css`), a project hook ([`.claude/hooks/resume-pdf-reminder.mjs`](.claude/hooks/resume-pdf-reminder.mjs)) reminds it to do this, once per session.
 
 The PDF is committed because Cloudflare's build has no browser to render it. CI guards it instead: the **Resume PDF** job runs `npm run resume:check`, which renders a fresh PDF and fails if it isn't one page or if its text differs from the committed `public/resume.pdf`. Text is compared instead of bytes, because PDF bytes include timestamps. The fresh PDF is uploaded as the `resume-pdf` workflow artifact so you can review it.
 
