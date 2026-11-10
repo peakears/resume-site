@@ -1,0 +1,41 @@
+# Weekly dependency updates, opened against develop so they follow the normal
+# develop -> main release flow. Commit prefixes line up with semantic-release:
+# runtime packages use fix(deps) (a patch release, since they change the
+# deployed site); dev tooling and Actions don't trigger a release.
+# Security updates are separate: GitHub always opens those against the default
+# branch, whatever target-branch says.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: fix # runtime dependencies -> fix(deps): ...
+      prefix-development: build # dev dependencies -> build(deps-dev): ...
+      include: scope
+    groups:
+      # One PR for all minor/patch bumps of each kind; majors stay separate
+      # so breaking changes can be reviewed on their own.
+      runtime:
+        dependency-type: production
+        update-types: [minor, patch]
+      dev-tooling:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci # ci(deps): ...
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]

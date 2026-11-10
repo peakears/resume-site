@@ -86,6 +86,10 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fe
 - **Lint, types & unit tests:** type-check, ESLint, Prettier check, and Vitest with coverage.
 - **E2E tests:** builds the static site and runs Playwright on desktop and mobile. If it fails, the HTML report and traces are uploaded as an artifact.
 
+## Dependencies
+
+[Dependabot](.github/dependabot.yml) checks npm packages and GitHub Actions every Monday and opens PRs against `develop`. Minor and patch bumps are grouped into one PR each for runtime packages, dev tooling and Actions; major versions get their own PR. Commit prefixes are chosen for the release rules: runtime packages use `fix(deps):` (a patch release, since they change the deployed site), dev tooling uses `build(deps-dev):` and Actions use `ci(deps):`, which don't release on their own. Security updates are opened against the default branch by GitHub, separately from this schedule.
+
 ## Deployment
 
 Hosted on **Cloudflare Workers** (static assets) with the custom domain `home.patrickkearney.dev`. Cloudflare builds straight from GitHub:
