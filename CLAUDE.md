@@ -20,4 +20,17 @@ Run `npm run check` (typecheck, lint, format check, unit tests, E2E). It must pa
 
 ## Git
 
-Work on `feature/*` branches off `develop` and open a PR into `develop`. Use Conventional Commit messages. `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.
+Work on `feature/*` branches off `develop` and open a PR into `develop`. Use Conventional Commit messages (see Versioning below). `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.
+
+## Versioning and releases
+
+The site uses semver, released automatically by semantic-release (`.github/workflows/release.yml`, config in `.releaserc.json`) whenever `develop` merges into `main`. It tags `vX.Y.Z` and publishes a GitHub Release whose notes are built from commit messages, with the resume PDF attached. Commit messages are therefore the changelog:
+
+- `feat:` → minor release. Use it for new or changed resume content and new site features.
+- `fix:` or `perf:` → patch release. Use it for corrections (typos, wrong dates, broken layout) and performance work.
+- `feat!:` or a `BREAKING CHANGE:` footer → major release. Reserve it for a deliberate overhaul.
+- `docs:`, `test:`, `ci:`, `build:`, `refactor:`, `style:`, `chore:` → no release on their own and hidden from the notes.
+- Write the subject for a reader of the release notes: lower-case, imperative, no trailing period, e.g. `feat: add Secrets Manager to the CARFAX role`.
+- CI's commitlint job rejects PRs with non-conventional commits. Run `npm run commitlint` before pushing.
+- Merge PRs with merge commits, not squash, so each commit appears in the notes.
+- Never create tags or releases by hand, never edit `version` in `package.json` (it's a placeholder), and don't add a `CHANGELOG.md`. Tags and GitHub Releases are the source of truth.

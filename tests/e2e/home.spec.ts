@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { profile } from "../../src/data/profile";
+import { asset, basePath, resumeHome } from "./paths";
 
 test.describe("home page", () => {
   test("loads with the profile content and no console errors", async ({
@@ -13,7 +14,7 @@ test.describe("home page", () => {
     );
     page.on("pageerror", (err) => errors.push(err.message));
 
-    await page.goto("/");
+    await page.goto(resumeHome);
 
     await expect(page).toHaveTitle(new RegExp(profile.name));
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
@@ -39,7 +40,7 @@ test.describe("home page", () => {
     isMobile,
   }) => {
     test.skip(isMobile, "Section nav is hidden on small screens");
-    await page.goto("/");
+    await page.goto(resumeHome);
 
     await page
       .getByRole("navigation", { name: "Main" })
@@ -52,16 +53,47 @@ test.describe("home page", () => {
     ).toBeInViewport();
   });
 
+  test("loads every file from under the base path", async ({ page }) => {
+    // Served at patrickkearney.dev/resume, so a root-relative URL that missed
+    // the prefix would hit the hub instead (and 404 locally).
+    const requests: { url: string; status: number }[] = [];
+    page.on("response", (response) => {
+      const url = new URL(response.url());
+      if (url.origin === new URL(page.url()).origin) {
+        requests.push({ url: url.pathname, status: response.status() });
+      }
+    });
+    await page.goto(resumeHome, { waitUntil: "networkidle" });
+
+    expect(requests.length).toBeGreaterThan(0);
+    for (const { url, status } of requests) {
+      expect(url, url).toMatch(new RegExp(`^${basePath}/`));
+      expect(status, url).toBeLessThan(400);
+    }
+    // Images and links outside Next's own <Link> and asset handling too.
+    for (const attribute of ["src", "href"]) {
+      const values = await page
+        .locator(`[${attribute}^="/"]`)
+        .evaluateAll(
+          (elements, name) => elements.map((el) => el.getAttribute(name)!),
+          attribute,
+        );
+      for (const value of values) {
+        expect(value, value).toMatch(new RegExp(`^${basePath}/`));
+      }
+    }
+  });
+
   test("serves the PDF resume linked from the page", async ({
     page,
     request,
   }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const href = await page
       .getByRole("link", { name: "Download resume (PDF)" })
       .first()
       .getAttribute("href");
-    expect(href).toBe(profile.resumePdf);
+    expect(href).toBe(asset(profile.resumePdf));
 
     const response = await request.get(href!);
     expect(response.ok()).toBe(true);
@@ -73,7 +105,7 @@ test.describe("home page", () => {
     page,
     isMobile,
   }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const background = (id: string) =>
       page
         .locator(`section#${id}`)
@@ -90,7 +122,7 @@ test.describe("home page", () => {
 
   test("theme choice persists across reloads", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "light" });
-    await page.goto("/");
+    await page.goto(resumeHome);
     const html = page.locator("html");
     await expect(html).not.toHaveClass(/dark/);
 
@@ -103,12 +135,12 @@ test.describe("home page", () => {
 
   test("follows the OS colour scheme on first visit", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.goto("/");
+    await page.goto(resumeHome);
     await expect(page.locator("html")).toHaveClass(/dark/);
   });
 
   test("does not scroll horizontally", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const overflow = await page.evaluate(
       () =>
         document.documentElement.scrollWidth -
@@ -118,7 +150,7 @@ test.describe("home page", () => {
   });
 
   test("contact buttons are the same height and line up", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const boxes = await page.locator("#contact ul a").evaluateAll((links) =>
       links.map((a) => {
         const r = a.getBoundingClientRect();
@@ -145,7 +177,7 @@ test.describe("home page", () => {
       page,
     }) => {
       await page.emulateMedia({ colorScheme: scheme });
-      await page.goto("/");
+      await page.goto(resumeHome);
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations).toEqual([]);
     });
@@ -154,7 +186,7 @@ test.describe("home page", () => {
   test("shows featured skills and reveals the rest on request", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const featured = profile.skills.filter((group) => group.featured);
     const others = profile.skills.filter((group) => !group.featured);
     const list = (category: string) =>
@@ -173,7 +205,7 @@ test.describe("home page", () => {
   });
 
   test("shows the profile terminal in the hero", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const terminal = page.getByRole("figure", {
       name: "Profile summary, written as code",
     });
@@ -182,7 +214,7 @@ test.describe("home page", () => {
   });
 
   test("prints every skill group but not the terminal", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     await page.emulateMedia({ media: "print" });
     for (const group of profile.skills) {
       await expect(
@@ -195,7 +227,7 @@ test.describe("home page", () => {
 
   test("loads the headshot in the hero", async ({ page }) => {
     test.skip(!profile.headshot, "No headshot configured");
-    await page.goto("/");
+    await page.goto(resumeHome);
     const image = page.getByRole("img", { name: profile.headshot!.alt });
     await expect(image).toBeVisible();
     expect(
@@ -204,7 +236,7 @@ test.describe("home page", () => {
   });
 
   test("runs commands in the hero terminal", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const prompt = page.getByRole("textbox", { name: "Terminal command" });
     await prompt.fill("about");
     await prompt.press("Enter");
@@ -215,7 +247,7 @@ test.describe("home page", () => {
   });
 
   test("plays mini golf from the terminal", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const prompt = page.getByRole("textbox", { name: "Terminal command" });
     await prompt.fill("golf");
     await prompt.press("Enter");
@@ -245,7 +277,7 @@ test.describe("home page", () => {
   test("holes the first putt with the right line and power", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const prompt = page.getByRole("textbox", { name: "Terminal command" });
     await prompt.fill("golf");
     await prompt.press("Enter");
@@ -265,7 +297,7 @@ test.describe("home page", () => {
   });
 
   test("reveals content as it scrolls into view", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     const roles = page.locator("#experience li.reveal");
     await expect(roles.first()).toHaveCSS("animation-name", "reveal");
 
@@ -279,7 +311,7 @@ test.describe("home page", () => {
 
   test("skips the reveal for reduced motion and in print", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
+    await page.goto(resumeHome);
     const last = page.locator("#experience li.reveal").last();
     await expect(last).toHaveCSS("animation-name", "none");
     await expect(last).toHaveCSS("opacity", "1");
@@ -293,7 +325,7 @@ test.describe("home page", () => {
     isMobile,
   }) => {
     test.skip(isMobile, "Section nav is hidden on small screens");
-    await page.goto("/");
+    await page.goto(resumeHome);
     const nav = page.getByRole("navigation", { name: "Main" });
     const current = nav.locator('[aria-current="location"]');
 
@@ -308,7 +340,7 @@ test.describe("home page", () => {
   });
 
   test("links back to the hub page from the footer", async ({ page }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     await expect(
       page.getByRole("contentinfo").getByRole("link", {
         name: new URL(profile.hubUrl).host,
@@ -317,15 +349,17 @@ test.describe("home page", () => {
   });
 
   test("serves the PK icons", async ({ page, request }) => {
-    await page.goto("/");
+    await page.goto(resumeHome);
     await expect(
       page.locator('link[rel="icon"][type="image/svg+xml"]'),
     ).toHaveCount(1);
     await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
     for (const path of ["/favicon.ico", "/icon.svg", "/apple-icon.png"]) {
-      const response = await request.get(path);
+      const response = await request.get(asset(path));
       expect(response.ok(), path).toBe(true);
     }
-    expect(await (await request.get("/icon.svg")).text()).toContain(">PK<");
+    expect(await (await request.get(asset("/icon.svg"))).text()).toContain(
+      ">PK<",
+    );
   });
 });

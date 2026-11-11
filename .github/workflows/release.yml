@@ -1,0 +1,44 @@
+name: Release
+
+# Every push to main (a merged develop -> main PR) is analysed by
+# semantic-release. If any commit since the last tag is a feat, fix, perf or
+# breaking change, it tags the next semver version and publishes a GitHub
+# Release with generated notes and the resume PDF attached. Nothing is
+# committed back to main, so branch protection is untouched.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never cancel a release half-way; queue the next one instead.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Tag & publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # push the tag and create the release
+      # Open an issue if a release fails. Released PRs get no comment or
+      # label (see .releaserc.json), because each one emails the owner.
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history and tags, to find the last release
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
