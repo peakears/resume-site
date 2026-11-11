@@ -27,6 +27,8 @@
     [
       "@semantic-release/github",
       {
+        "successComment": false,
+        "releasedLabels": false,
         "assets": [
           {
             "path": "public/resume.pdf",
