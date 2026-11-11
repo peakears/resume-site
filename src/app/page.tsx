@@ -7,8 +7,23 @@ import { ProfileTerminal } from "@/components/ProfileTerminal";
 import { Projects } from "@/components/Projects";
 import { Section } from "@/components/Section";
 import { Skills } from "@/components/Skills";
-import { profile } from "@/data/profile";
+import { profile as content } from "@/data/profile";
+import { withBasePath } from "@/lib/basePath";
 import { buildProfileJsonLd, serializeJsonLd } from "@/lib/jsonLd";
+
+/**
+ * Files in `public/` are served under the base path (/resume), and plain
+ * links and unoptimized images don't add it, so prefix them once here.
+ */
+const asset = (path: string) => withBasePath(content.siteUrl, path);
+const profile = {
+  ...content,
+  resumePdf: asset(content.resumePdf),
+  headshot: content.headshot && {
+    ...content.headshot,
+    src: asset(content.headshot.src),
+  },
+};
 
 export default function Home() {
   const currentRole = profile.experience.find((role) => role.end === null);

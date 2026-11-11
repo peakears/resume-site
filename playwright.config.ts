@@ -1,12 +1,17 @@
 import { defineConfig, devices } from "@playwright/test";
+import { profile } from "./src/data/profile";
+import { basePathOf } from "./src/lib/basePath";
 
 const PORT = 4173;
 /** The hub page for the apex domain, built from the same profile data. */
 const HUB_PORT = 4175;
 
+/** The resume is served under a base path, e.g. /resume/ (see next.config.ts). */
+const RESUME_PATH = `${basePathOf(profile.siteUrl)}/`;
+
 /**
- * E2E/integration tests run against the real static build in `out/`,
- * served exactly as a static host would serve it.
+ * E2E/integration tests run against the real static build in `dist/`,
+ * served exactly as a static host would serve it, base path included.
  */
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -46,8 +51,8 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: `npm run build && npx serve out -l ${PORT} --no-port-switching`,
-      url: `http://localhost:${PORT}`,
+      command: `npm run build && npx serve dist -l ${PORT} --no-port-switching`,
+      url: `http://localhost:${PORT}${RESUME_PATH}`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },
