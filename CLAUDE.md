@@ -12,7 +12,7 @@ Personal resume site. Next.js 16 App Router, statically exported (`output: "expo
 - Every new component gets a unit test in `tests/unit/` that queries by role and accessible name.
 - User-visible behaviour (navigation, theme, layout) gets a Playwright test in `tests/e2e/`.
 
-- Print styles (`print:` variants) turn the page into the one-page PDF resume. After changing content or layout, run `npm run resume:pdf` (it fails if the PDF isn't one page) and commit the PDF. CI's `resume:check` fails if the committed PDF is stale.
+- Print styles (`print:` variants) turn the page into the one-page PDF resume. After changing content or layout, run `npm run resume:pdf` (it fails if the PDF isn't one page) and commit the PDF. CI's `resume:check` fails if the committed PDF is stale. A `PostToolUse` hook (`.claude/hooks/resume-pdf-reminder.mjs`) reminds you once per session when you edit a file that feeds the PDF.
 
 ## Before finishing a change
 
