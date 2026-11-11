@@ -19,7 +19,8 @@ Do this before merging `develop` into `main`. Expect a brief blip on `patrickkea
 
 ## 2. Deploy
 
-- [ ] Open a PR from `develop` into `main` and merge it. Cloudflare builds and deploys both Workers, and the resume Worker picks up its `/resume` routes from `wrangler.jsonc`.
+- [ ] Open a PR from `develop` into `main` and merge it. Cloudflare builds and deploys both Workers, and the resume Worker should pick up its `/resume` routes from `wrangler.jsonc`.
+- [ ] **Workers & Pages → resume-site → Settings → Domains & Routes:** check that the routes `patrickkearney.dev/resume` and `patrickkearney.dev/resume/*` are listed. In the real cutover the deploy didn't create them, so add them here if they're missing. Without them, `/resume/` shows the hub's "Page not found".
 - [ ] Check that `https://patrickkearney.dev/resume/` loads with styles, the headshot and the PDF link.
 - [ ] Check that `https://patrickkearney.dev/resume` (no slash) ends up at the page.
 - [ ] Check that `https://patrickkearney.dev/robots.txt` and `/sitemap.xml` come from the hub and list `/resume/`.
