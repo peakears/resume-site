@@ -16,6 +16,8 @@
 # next.js
 /.next/
 /out/
+# `npm run build` moves out/ to dist/resume/ (see scripts/nest-export.mts)
+/dist/
 
 # production
 /build
