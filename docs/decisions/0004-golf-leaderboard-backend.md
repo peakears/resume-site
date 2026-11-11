@@ -4,7 +4,7 @@
 
 ## Context
 
-The mini-golf game (`golf` in the terminal) is getting a leaderboard, which needs somewhere to store scores and a way to stop people posting made-up ones. The site is a static export on Cloudflare Workers ([0001](0001-initial-stack.md)) under `/resume` ([0003](0003-sections-on-paths.md)), and there are no user accounts.
+The mini-golf game (`golf` in the terminal) is getting a leaderboard ([#22](https://github.com/peakears/resume-site/issues/22)), which needs somewhere to store scores and a way to stop people posting made-up ones. The site is a static export on Cloudflare Workers ([0001](0001-initial-stack.md)) under `/resume` ([0003](0003-sections-on-paths.md)), and there are no user accounts.
 
 The game's physics is deterministic: a fixed 1/120 s step and pure functions in `src/lib/golf.ts`. So a server can replay a round from the putts alone and work out the score itself, instead of trusting a number from the browser.
 
@@ -12,10 +12,11 @@ The game's physics is deterministic: a fixed 1/120 s step and pure functions in 
 
 - **A TypeScript Worker, in the Worker that already serves the site.** `wrangler.jsonc` gets a `main` script, and `assets.run_worker_first` sends `/resume/api/*` to it; everything else stays static. One deploy, one origin, no CORS. Rust and Python Workers were considered for the sake of trying a new language, and rejected: either would mean writing the physics twice (or shipping it to the browser as WebAssembly), and a second copy that can drift is exactly what a replay can't tolerate.
 - **Cloudflare D1 (SQLite) for storage.** Serverless like the rest of the site, and a leaderboard is one small table.
-- **The browser sends putts, never a score.** A submission is the list of putts; the server runs `playRound()` from `golf.ts` and stores the score it gets. An impossible score can't be submitted, because no putts produce it.
+- **The browser sends putts, never a score.** A submission is the list of putts; the server runs `playRound()` from `golf.ts` and stores the score it gets. An impossible score can't be submitted, because no putts produce it. The issue suggested plausibility checks first (1 to 10 strokes a hole) and replay later; replay comes first instead, because it makes the plausibility checks unnecessary.
+- **Two routes.** `POST /resume/api/scores` takes `{ roundId, name, shots, courseVersion }` and `GET /resume/api/scores?limit=10` returns the top scores. `roundId` is a UUID the browser makes when a round starts; it's unique in the database, so a retry can't post the same round twice. The timestamp is set by the server.
 - **Rules and physics live in one module, used by both sides.** Stroke counting, the water penalty and the power limits moved out of `GolfGame.tsx` into `golf.ts` (`teeOff`, `strike`, `advance`, `playRound`). The component animates with the same functions the server replays with.
 - **The replay must match the browser to the last bit, in every browser.** JavaScript engines agree exactly on `+ - * /` and `Math.sqrt`, but not on `Math.hypot`, `Math.sin` or `Math.cos`. So the physics uses only the exact operations, and a putt is recorded as its launch velocity (`Shot`), not an angle and power: the trigonometry runs once, in the browser, before the putt is recorded.
-- **No accounts.** Players enter initials. Abuse controls are added in layers as needed: a signed, single-use token per round, Cloudflare Turnstile, per-IP rate limits, and a bearer secret for an admin delete route.
+- **No accounts.** Players enter three-letter initials (A to Z), which leaves little room for abuse in a name. Posts are rate-limited per visitor with Cloudflare's rate-limit binding, and no IP addresses are stored. Cloudflare Turnstile is added only if spam appears.
 - **Ties rank by earliest submission.**
 
 ## Consequences
@@ -23,5 +24,5 @@ The game's physics is deterministic: a fixed 1/120 s step and pure functions in 
 - Anything added to the physics must stick to exact arithmetic. No trigonometry, `Math.hypot`, `Math.pow` or randomness inside `step()` and the functions it calls.
 - A replay proves a round is possible, not that a person played it. With three fixed holes, someone can search for three holes-in-one and submit them, so the top of the board will fill with ties. That's acceptable for a toy; a changing course would be the fix.
 - Changing a level or a physics constant changes what old putts score, so stored scores need a course version.
-- The game must keep working when the API can't be reached (`next dev`, the Playwright server, an outage): the leaderboard hides itself.
+- The game must keep working when the API can't be reached (`next dev`, the Playwright server, an outage): the game plays as normal and shows "Leaderboard unavailable".
 - This is built in phases. The first only reshapes `golf.ts` and `GolfGame.tsx`; the Worker, database and leaderboard UI follow.
