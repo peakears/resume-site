@@ -13,7 +13,7 @@ The repo is also a portfolio piece: it shows how I structure a small frontend pr
 Requires Node.js 22+ (developed on Node 24).
 
 ```bash
-npm install
+npm install                       # also installs the git hooks below
 npx playwright install chromium   # one-time, for E2E tests
 npm run dev                       # http://localhost:3000
 ```
@@ -61,9 +61,13 @@ The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`
 
 ### PDF resume
 
-`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF. It fails if the PDF runs past one page.
+`public/resume.pdf` is generated from the site itself by [`scripts/generate-resume-pdf.mts`](scripts/generate-resume-pdf.mts). It loads the built page in headless Chromium with print styles, which turn the page into a compact one-page resume. Run `npm run resume:pdf` after changing `profile.ts` and commit the new PDF. It fails if the PDF runs past one page. When Claude Code edits a file that feeds the PDF (`src/data/`, `src/components/`, `page.tsx`, `layout.tsx`, `globals.css`), a project hook ([`.claude/hooks/resume-pdf-reminder.mjs`](.claude/hooks/resume-pdf-reminder.mjs)) reminds it to do this, once per session.
 
 The PDF is committed because Cloudflare's build has no browser to render it. CI guards it instead: the **Resume PDF** job runs `npm run resume:check`, which renders a fresh PDF and fails if it isn't one page or if its text differs from the committed `public/resume.pdf`. Text is compared instead of bytes, because PDF bytes include timestamps. The fresh PDF is uploaded as the `resume-pdf` workflow artifact so you can review it.
+
+### Formatting
+
+Prettier formats everything, with the Tailwind plugin sorting classes; CI fails on unformatted files. For [Claude Code](https://claude.com/claude-code), a project hook in [`.claude/settings.json`](.claude/settings.json) runs Prettier on each file Claude edits or writes ([`.claude/hooks/format.mjs`](.claude/hooks/format.mjs)), using the repo's pinned version and config.
 
 ## Testing strategy
 
@@ -79,6 +83,15 @@ The PDF is committed because Cloudflare's build has no browser to render it. CI 
 Both `main` and `develop` are protected: changes arrive through pull requests, and CI must pass first.
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `test:`, `docs:`, `chore:`). They decide the next version number (see [Releases](#releases)), so CI lints every commit in a pull request with [commitlint](https://commitlint.js.org/).
+
+### Git hooks
+
+`npm install` sets up two [husky](https://typicode.github.io/husky/) hooks, so problems are caught at commit time rather than in CI:
+
+- **pre-commit:** [lint-staged](https://github.com/lint-staged/lint-staged) runs on staged files only ([`lint-staged.config.mjs`](lint-staged.config.mjs)). Code gets `eslint --fix` then Prettier; everything else gets Prettier. Fixes are added to the commit, and an ESLint error that can't be fixed stops it.
+- **commit-msg:** commitlint rejects a message that isn't a valid Conventional Commit, so you can retype it before it's pushed.
+
+Type-checking and tests stay in `npm run check` and CI, which still run everything. `git commit --no-verify` skips the hooks in an emergency, and `HUSKY=0` turns them off for a command.
 
 ## CI
 
@@ -103,6 +116,10 @@ Versions follow [semver](https://semver.org/) and are cut automatically by [sema
 It then pushes a `vX.Y.Z` tag and publishes a [GitHub Release](https://github.com/peakears/resume-site/releases) whose notes list the features and fixes, with links to each commit, and attaches that version's resume PDF. Released PRs get no comment or label, so a release doesn't send an email per PR.
 
 Nothing is committed back to `main`: the tags and releases are the changelog, and `version` in `package.json` stays a placeholder. To see the current version, look at the latest tag (`git describe --tags --abbrev=0`) or release.
+
+## Dependencies
+
+[Dependabot](.github/dependabot.yml) checks npm packages and GitHub Actions every Monday and opens PRs against `develop`. Minor and patch bumps are grouped into one PR each for runtime packages, dev tooling and Actions; major versions get their own PR. Commit prefixes are chosen for the release rules: runtime packages use `fix(deps):` (a patch release, since they change the deployed site), dev tooling uses `build(deps-dev):` and Actions use `ci(deps):`, which don't release on their own. Security updates are opened against the default branch by GitHub, separately from this schedule.
 
 ## Deployment
 
