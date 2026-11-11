@@ -13,7 +13,7 @@ The repo is also a portfolio piece: it shows how I structure a small frontend pr
 Requires Node.js 22+ (developed on Node 24).
 
 ```bash
-npm install
+npm install                       # also installs the git hooks below
 npx playwright install chromium   # one-time, for E2E tests
 npm run dev                       # http://localhost:3000
 ```
@@ -83,6 +83,15 @@ Prettier formats everything, with the Tailwind plugin sorting classes; CI fails 
 Both `main` and `develop` are protected: changes arrive through pull requests, and CI must pass first.
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `test:`, `docs:`, `chore:`). They decide the next version number (see [Releases](#releases)), so CI lints every commit in a pull request with [commitlint](https://commitlint.js.org/).
+
+### Git hooks
+
+`npm install` sets up two [husky](https://typicode.github.io/husky/) hooks, so problems are caught at commit time rather than in CI:
+
+- **pre-commit:** [lint-staged](https://github.com/lint-staged/lint-staged) runs on staged files only ([`lint-staged.config.mjs`](lint-staged.config.mjs)). Code gets `eslint --fix` then Prettier; everything else gets Prettier. Fixes are added to the commit, and an ESLint error that can't be fixed stops it.
+- **commit-msg:** commitlint rejects a message that isn't a valid Conventional Commit, so you can retype it before it's pushed.
+
+Type-checking and tests stay in `npm run check` and CI, which still run everything. `git commit --no-verify` skips the hooks in an emergency, and `HUSKY=0` turns them off for a command.
 
 ## CI
 
