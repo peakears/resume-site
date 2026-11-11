@@ -9,6 +9,12 @@
     "directory": "./dist",
     "not_found_handling": "404-page",
   },
+  // The hub is the fallback for the whole apex domain. Sections such as the
+  // resume (/resume) claim their own, more specific routes in their own
+  // Worker config, and those win.
+  "routes": [
+    { "pattern": "patrickkearney.dev/*", "zone_name": "patrickkearney.dev" },
+  ],
   "observability": {
     "enabled": false,
   },
