@@ -108,6 +108,10 @@ It then pushes a `vX.Y.Z` tag and publishes a [GitHub Release](https://github.co
 
 Nothing is committed back to `main`: the tags and releases are the changelog, and `version` in `package.json` stays a placeholder. To see the current version, look at the latest tag (`git describe --tags --abbrev=0`) or release.
 
+## Dependencies
+
+[Dependabot](.github/dependabot.yml) checks npm packages and GitHub Actions every Monday and opens PRs against `develop`. Minor and patch bumps are grouped into one PR each for runtime packages, dev tooling and Actions; major versions get their own PR. Commit prefixes are chosen for the release rules: runtime packages use `fix(deps):` (a patch release, since they change the deployed site), dev tooling uses `build(deps-dev):` and Actions use `ci(deps):`, which don't release on their own. Security updates are opened against the default branch by GitHub, separately from this schedule.
+
 ## Deployment
 
 Hosted on **Cloudflare Workers** (static assets) at **`patrickkearney.dev/resume`**. The resume is one section of the domain: each section is its own Worker that claims its path with a route, and the hub Worker takes everything else. See [ADR 0003](docs/decisions/0003-sections-on-paths.md) for why paths rather than subdomains, and the [cutover checklist](docs/runbooks/resume-path-cutover.md) for the move from `home.patrickkearney.dev`.
