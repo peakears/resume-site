@@ -7,9 +7,12 @@ import { mkdir, readFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { chromium } from "@playwright/test";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { profile } from "../src/data/profile.ts";
+import { basePathOf } from "../src/lib/basePath.ts";
 
 const PORT = 4174;
-const URL = `http://localhost:${PORT}/`;
+// The build in dist/ serves the resume under its base path (/resume/).
+const URL = `http://localhost:${PORT}${basePathOf(profile.siteUrl)}/`;
 
 async function waitForServer(url: string, timeoutMs = 15_000) {
   const deadline = Date.now() + timeoutMs;
@@ -25,11 +28,11 @@ async function waitForServer(url: string, timeoutMs = 15_000) {
   throw new Error(`Server at ${url} did not start within ${timeoutMs}ms`);
 }
 
-/** Serves `out/` and prints the page to `outputPath`. Run `next build` first. */
+/** Serves `dist/` and prints the page to `outputPath`. Run `npm run build` first. */
 export async function renderResumePdf(outputPath: string) {
   const server = spawn(
     "npx",
-    ["serve", "out", "-l", String(PORT), "--no-port-switching"],
+    ["serve", "dist", "-l", String(PORT), "--no-port-switching"],
     { stdio: "ignore" },
   );
 

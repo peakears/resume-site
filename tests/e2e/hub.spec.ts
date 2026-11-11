@@ -34,9 +34,25 @@ test.describe("hub page", () => {
     expect(
       await avatar.evaluate((img: HTMLImageElement) => img.naturalWidth),
     ).toBeGreaterThan(0);
-    for (const path of ["/styles.css", "/favicon.svg", "/robots.txt"]) {
+    for (const path of ["/styles.css", "/favicon.svg", "/favicon.ico"]) {
       expect((await request.get(path)).ok()).toBe(true);
     }
+  });
+
+  test("serves robots.txt and a sitemap for the whole domain", async ({
+    request,
+  }) => {
+    const robots = await request.get("/robots.txt");
+    expect(robots.ok()).toBe(true);
+    const text = await robots.text();
+    expect(text).toContain("Allow: /");
+    expect(text).toContain(`Sitemap: ${profile.hubUrl}/sitemap.xml`);
+
+    const sitemap = await request.get("/sitemap.xml");
+    expect(sitemap.ok()).toBe(true);
+    const xml = await sitemap.text();
+    expect(xml).toContain(`<loc>${profile.hubUrl}/</loc>`);
+    expect(xml).toContain(`<loc>${profile.siteUrl}/</loc>`);
   });
 
   test("does not scroll horizontally", async ({ page }) => {

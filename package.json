@@ -1,10 +1,10 @@
 {
   "name": "resume-site",
-  "version": "0.1.0",
+  "version": "0.0.0-semantically-released",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/nest-export.mts",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
@@ -14,12 +14,13 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "preview": "serve out -l 4173",
+    "preview": "serve dist -l 4173",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run test:e2e",
-    "resume:pdf": "next build && node scripts/generate-resume-pdf.mts",
-    "resume:check": "next build && node scripts/check-resume-pdf.mts",
+    "resume:pdf": "npm run build && node scripts/generate-resume-pdf.mts",
+    "resume:check": "npm run build && node scripts/check-resume-pdf.mts",
     "hub:build": "node scripts/build-hub.mts",
-    "hub:preview": "npm run hub:build && serve hub/dist -l 4175"
+    "hub:preview": "npm run hub:build && serve hub/dist -l 4175",
+    "commitlint": "commitlint --from origin/develop --to HEAD --verbose"
   },
   "dependencies": {
     "next": "16.4.5",
@@ -28,6 +29,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/turbopack": "^4",
     "@testing-library/dom": "^10.4.2",
@@ -39,6 +42,7 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.2.1",
     "@vitest/coverage-v8": "^5.1.0",
+    "conventional-changelog-conventionalcommits": "^9.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "geist": "^1.9.2",
@@ -46,6 +50,7 @@
     "pdfjs-dist": "^6.5.438",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "semantic-release": "^25.0.9",
     "serve": "^14.2.6",
     "tailwindcss": "^4",
     "typescript": "^5",
