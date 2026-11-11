@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/nest-export.mts",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
@@ -14,10 +14,10 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "preview": "serve out -l 4173",
+    "preview": "serve dist -l 4173",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run test:e2e",
-    "resume:pdf": "next build && node scripts/generate-resume-pdf.mts",
-    "resume:check": "next build && node scripts/check-resume-pdf.mts",
+    "resume:pdf": "npm run build && node scripts/generate-resume-pdf.mts",
+    "resume:check": "npm run build && node scripts/check-resume-pdf.mts",
     "hub:build": "node scripts/build-hub.mts",
     "hub:preview": "npm run hub:build && serve hub/dist -l 4175",
     "commitlint": "commitlint --from origin/develop --to HEAD --verbose"
