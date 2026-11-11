@@ -8,6 +8,7 @@ Personal resume site. Next.js 16 App Router, statically exported (`output: "expo
 
 - All content lives in `src/data/profile.ts`. Components take data as props and never import the profile directly, except `src/app/page.tsx` and `layout.tsx`.
 - Colours come from CSS variables in `src/app/globals.css` (`bg-background`, `text-muted`, `border-border`, `bg-accent`, ...). Don't hard-code Tailwind palette colours; dark mode works by redefining the variables under `.dark`.
+- A `PostToolUse` hook (`.claude/settings.json` → `.claude/hooks/format.mjs`) runs Prettier on every file you edit or write, so there is no need to run `npm run format` after edits. If a later `Edit` misses because the hook reformatted the file, re-read it first.
 - Every new component gets a unit test in `tests/unit/` that queries by role and accessible name.
 - User-visible behaviour (navigation, theme, layout) gets a Playwright test in `tests/e2e/`.
 

@@ -65,6 +65,10 @@ The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`
 
 The PDF is committed because Cloudflare's build has no browser to render it. CI guards it instead: the **Resume PDF** job runs `npm run resume:check`, which renders a fresh PDF and fails if it isn't one page or if its text differs from the committed `public/resume.pdf`. Text is compared instead of bytes, because PDF bytes include timestamps. The fresh PDF is uploaded as the `resume-pdf` workflow artifact so you can review it.
 
+### Formatting
+
+Prettier formats everything, with the Tailwind plugin sorting classes; CI fails on unformatted files. For [Claude Code](https://claude.com/claude-code), a project hook in [`.claude/settings.json`](.claude/settings.json) runs Prettier on each file Claude edits or writes ([`.claude/hooks/format.mjs`](.claude/hooks/format.mjs)), using the repo's pinned version and config.
+
 ## Testing strategy
 
 - **Unit (Vitest + React Testing Library):** pure helpers and each section component, rendered with a fixture profile. Queries use roles and accessible names, the way a user or screen reader finds things.
@@ -112,6 +116,10 @@ Versions follow [semver](https://semver.org/) and are cut automatically by [sema
 It then pushes a `vX.Y.Z` tag and publishes a [GitHub Release](https://github.com/peakears/resume-site/releases) whose notes list the features and fixes, with links to each commit, and attaches that version's resume PDF. Released PRs get no comment or label, so a release doesn't send an email per PR.
 
 Nothing is committed back to `main`: the tags and releases are the changelog, and `version` in `package.json` stays a placeholder. To see the current version, look at the latest tag (`git describe --tags --abbrev=0`) or release.
+
+## Dependencies
+
+[Dependabot](.github/dependabot.yml) checks npm packages and GitHub Actions every Monday and opens PRs against `develop`. Minor and patch bumps are grouped into one PR each for runtime packages, dev tooling and Actions; major versions get their own PR. Commit prefixes are chosen for the release rules: runtime packages use `fix(deps):` (a patch release, since they change the deployed site), dev tooling uses `build(deps-dev):` and Actions use `ci(deps):`, which don't release on their own. Security updates are opened against the default branch by GitHub, separately from this schedule.
 
 ## Deployment
 
