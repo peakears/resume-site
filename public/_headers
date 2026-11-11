@@ -1,4 +1,6 @@
-# Cloudflare response headers. https://developers.cloudflare.com/pages/configuration/headers/
+# Cloudflare response headers. https://developers.cloudflare.com/workers/static-assets/headers/
+# Write paths as if the site were at the root: `npm run build` moves this file
+# to dist/ and adds the base path (/resume) to each pattern.
 
 /*
   X-Content-Type-Options: nosniff

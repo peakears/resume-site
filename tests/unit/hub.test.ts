@@ -5,6 +5,8 @@ import {
   hubLinks,
   renderHubPage,
   renderNotFoundPage,
+  renderRobotsTxt,
+  renderSitemap,
 } from "@/lib/hub";
 
 const profile = {
@@ -17,7 +19,7 @@ const profile = {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/jane/" },
   ],
   resumePdf: "/resume.pdf",
-  siteUrl: "https://home.example.dev",
+  siteUrl: "https://example.dev/resume",
   hubUrl: "https://example.dev",
   headshot: { src: "/headshot.jpg", alt: "Jane Doe" },
 } as Profile;
@@ -36,7 +38,7 @@ describe("hubLinks", () => {
       {
         label: "Resume",
         detail: "Experience, skills and projects",
-        href: "https://home.example.dev/",
+        href: "https://example.dev/resume/",
         primary: true,
       },
       {
@@ -71,7 +73,7 @@ describe("renderHubPage", () => {
       '<link rel="canonical" href="https://example.dev/">',
     );
     expect(html).toContain(
-      '<meta property="og:image" content="https://home.example.dev/opengraph-image">',
+      '<meta property="og:image" content="https://example.dev/resume/opengraph-image">',
     );
   });
 
@@ -90,5 +92,22 @@ describe("renderNotFoundPage", () => {
     const html = renderNotFoundPage(profile);
     expect(html).toContain('<meta name="robots" content="noindex">');
     expect(html).toContain('href="/"');
+  });
+});
+
+describe("renderRobotsTxt", () => {
+  it("allows everything and points at the domain's sitemap", () => {
+    const text = renderRobotsTxt(profile);
+    expect(text).toContain("Allow: /");
+    expect(text).toContain("Sitemap: https://example.dev/sitemap.xml");
+  });
+});
+
+describe("renderSitemap", () => {
+  it("lists the hub and the resume", () => {
+    const xml = renderSitemap(profile);
+    expect(xml).toMatch(/^<\?xml version="1.0" encoding="UTF-8"\?>/);
+    expect(xml).toContain("<loc>https://example.dev/</loc>");
+    expect(xml).toContain("<loc>https://example.dev/resume/</loc>");
   });
 });

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/peakears/resume-site/actions/workflows/ci.yml/badge.svg)](https://github.com/peakears/resume-site/actions/workflows/ci.yml)
 
-**Live at [home.patrickkearney.dev](https://home.patrickkearney.dev)**
+**Live at [patrickkearney.dev/resume](https://patrickkearney.dev/resume/)**
 
 My personal resume and portfolio site, built with **Next.js 16 (App Router)**, **React 19**, **TypeScript** and **Tailwind CSS v4**. It's statically exported, so it can be hosted anywhere for free.
 
@@ -23,8 +23,8 @@ npm run dev                       # http://localhost:3000
 | Script                  | What it does                                              |
 | ----------------------- | --------------------------------------------------------- |
 | `npm run dev`           | Start the dev server with hot reload                      |
-| `npm run build`         | Build the static site into `out/`                         |
-| `npm run preview`       | Serve `out/` locally on port 4173                         |
+| `npm run build`         | Build the static site into `dist/resume/`                 |
+| `npm run preview`       | Serve `dist/` on port 4173 (open `/resume/`)              |
 | `npm test`              | Run unit tests (Vitest + React Testing Library)           |
 | `npm run test:watch`    | Run unit tests in watch mode                              |
 | `npm run test:coverage` | Unit tests with a coverage report                         |
@@ -44,7 +44,7 @@ src/
   app/          Next.js App Router: layout, page, global styles
   components/   Presentational components, one per section
   data/         profile.ts: all resume content, fully typed
-  lib/          Small pure helpers (date formatting)
+  lib/          Small pure helpers (dates, base path, hub page)
 tests/
   unit/         Vitest + Testing Library component and helper tests
   e2e/          Playwright tests against the real static build
@@ -68,7 +68,7 @@ The PDF is committed because Cloudflare's build has no browser to render it. CI 
 ## Testing strategy
 
 - **Unit (Vitest + React Testing Library):** pure helpers and each section component, rendered with a fixture profile. Queries use roles and accessible names, the way a user or screen reader finds things.
-- **Integration/E2E (Playwright):** runs against the production static build served from `out/`, on desktop Chrome and a mobile viewport. It covers page content, in-page navigation, theme persistence, OS colour-scheme detection, no horizontal scroll, no console errors, and **axe accessibility scans in light and dark mode**.
+- **Integration/E2E (Playwright):** runs against the production static build served from `dist/` under its `/resume/` base path, on desktop Chrome and a mobile viewport. It covers page content, in-page navigation, theme persistence, OS colour-scheme detection, no horizontal scroll, no console errors, and **axe accessibility scans in light and dark mode**.
 
 ## Branching
 
@@ -106,7 +106,18 @@ Nothing is committed back to `main`: the tags and releases are the changelog, an
 
 ## Deployment
 
-Hosted on **Cloudflare Workers** (static assets) with the custom domain `home.patrickkearney.dev`. Cloudflare builds straight from GitHub:
+Hosted on **Cloudflare Workers** (static assets) at **`patrickkearney.dev/resume`**. The resume is one section of the domain: each section is its own Worker that claims its path with a route, and the hub Worker takes everything else. See [ADR 0003](docs/decisions/0003-sections-on-paths.md) for why paths rather than subdomains, and the [cutover checklist](docs/runbooks/resume-path-cutover.md) for the move from `home.patrickkearney.dev`.
+
+```
+patrickkearney.dev
+├── /resume, /resume/*  →  resume-site Worker (this repo, dist/)
+├── /photos, /photos/*  →  photos Worker (later)
+└── /*                  →  hub Worker (this repo, hub/dist/)
+
+home.patrickkearney.dev/*  →  301 to patrickkearney.dev/resume/*
+```
+
+Cloudflare builds straight from GitHub:
 
 | Setting           | Value                        |
 | ----------------- | ---------------------------- |
@@ -115,20 +126,29 @@ Hosted on **Cloudflare Workers** (static assets) with the custom domain `home.pa
 | Deploy command    | `npx wrangler deploy`        |
 | Node version      | from [`.nvmrc`](.nvmrc) (24) |
 
-[`wrangler.jsonc`](wrangler.jsonc) tells Wrangler to upload `out/` as plain static files. Without it, Wrangler assumes a Next.js app needs a server and tries to convert it with OpenNext, which fails for a static export.
+[`wrangler.jsonc`](wrangler.jsonc) tells Wrangler to upload `dist/` as plain static files, and declares the resume's routes. Without it, Wrangler assumes a Next.js app needs a server and tries to convert it with OpenNext, which fails for a static export.
 
-To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or `npx wrangler dev` to serve `out/` with the Cloudflare runtime.
+### The `/resume` base path
+
+[`profile.siteUrl`](src/data/profile.ts) (`https://patrickkearney.dev/resume`) is the one place the URL is set. Everything else follows from it:
+
+- [`next.config.ts`](next.config.ts) sets `basePath` from it, so Next prefixes its own scripts, styles, fonts and icons with `/resume`.
+- Plain `<a>` links and unoptimized images don't get the prefix on their own, so [`src/app/page.tsx`](src/app/page.tsx) adds it to the files from `public/` (the PDF and headshot) with [`withBasePath`](src/lib/basePath.ts).
+- Static export still writes the files to the root of `out/`, but Cloudflare looks them up by the full request path. `npm run build` therefore runs [`scripts/nest-export.mts`](scripts/nest-export.mts) after `next build`, which moves the export to `dist/resume/` and adds the prefix to the patterns in `_headers`.
+- An E2E test fails if the page requests or links to any same-origin URL outside `/resume/`.
+
+To check a deploy locally: `npm run build && npx wrangler deploy --dry-run`, or `npx wrangler dev` to serve `dist/` with the Cloudflare runtime (open `/resume/`).
 
 - Merging into `main` deploys to production.
 - Only `main` builds on Cloudflare; non-production branch builds are turned off. Pull requests are checked by GitHub Actions CI instead, which builds the same static export and tests it with Playwright.
 - [`public/_headers`](public/_headers) sets security headers and the content type of the extensionless link-preview image.
-- SEO files are generated at build time: `robots.txt`, `sitemap.xml`, and the Open Graph image from [`src/app/opengraph-image.tsx`](src/app/opengraph-image.tsx).
+- The Open Graph image is generated at build time from [`src/app/opengraph-image.tsx`](src/app/opengraph-image.tsx). `robots.txt` and `sitemap.xml` are served by the hub, because crawlers only read them at the domain root.
 - The page embeds [JSON-LD](https://json-ld.org/) structured data (a schema.org `ProfilePage` about a `Person`), built from `profile.ts` by [`src/lib/jsonLd.ts`](src/lib/jsonLd.ts). Check it with the [Schema Markup Validator](https://validator.schema.org/).
 - Traffic is measured with Cloudflare Web Analytics, which is cookieless, so there's no consent banner.
 
 ## Hub page (patrickkearney.dev)
 
-The apex domain serves a small hub page that links to the resume, GitHub, LinkedIn and email. It's plain HTML and CSS with no framework, generated from the same `profile.ts` by [`src/lib/hub.ts`](src/lib/hub.ts), so the two sites never disagree.
+The apex domain serves a small hub page that links to the resume, GitHub, LinkedIn and email. It's also the fallback for every path no section claims, so it serves the domain-wide `robots.txt`, `sitemap.xml` and `favicon.ico`. It's plain HTML and CSS with no framework, generated from the same `profile.ts` by [`src/lib/hub.ts`](src/lib/hub.ts), so the two sites never disagree.
 
 ```bash
 npm run hub:build     # writes hub/dist/
@@ -143,7 +163,7 @@ It's deployed as a **second Cloudflare Worker** ([`hub/wrangler.jsonc`](hub/wran
 | Build command     | `npm run hub:build`                               |
 | Deploy command    | `npx wrangler deploy --config hub/wrangler.jsonc` |
 | Production branch | `main`                                            |
-| Custom domain     | `patrickkearney.dev`                              |
+| Route             | `patrickkearney.dev/*` (in `hub/wrangler.jsonc`)  |
 
 Playwright tests it alongside the resume site (`hub-desktop` and `hub-mobile` projects), including axe scans in light and dark mode.
 
@@ -153,7 +173,9 @@ Playwright tests it alongside the resume site (`hub-desktop` and `hub-mobile` pr
 - [x] GitHub Actions CI on every PR
 - [x] Branch protection on `main` and `develop`
 - [x] Custom domain: home.patrickkearney.dev
-- [ ] Hub page at patrickkearney.dev linking to the resume and profiles
+- [x] Hub page at patrickkearney.dev linking to the resume and profiles
+- [ ] Move the resume to patrickkearney.dev/resume ([cutover checklist](docs/runbooks/resume-path-cutover.md))
+- [ ] Photos section at patrickkearney.dev/photos
 - [x] Deploy on Cloudflare with analytics
 - [x] JSON-LD structured data for search engines
 - [x] Semver releases with generated changelogs
