@@ -48,6 +48,10 @@ export const STOP_SPEED = 4;
 export const RESTITUTION = 0.7;
 /** Fixed physics step, so a putt plays the same at any frame rate. */
 export const STEP = 1 / 120;
+/** Weakest putt the game accepts, as a share of full power. */
+export const MIN_POWER = 0.05;
+/** Most putts a round can have and still be scored. */
+export const MAX_SHOTS = 200;
 
 export const LEVELS: Level[] = [
   {
@@ -82,7 +86,12 @@ export const LEVELS: Level[] = [
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
-const length = (v: Vec) => Math.hypot(v.x, v.y);
+// Square roots are exact in every JavaScript engine; Math.hypot isn't, and
+// the leaderboard server has to replay a putt to the same last bit as the
+// player's browser. Keep trigonometry and Math.hypot out of the physics.
+const distance = (dx: number, dy: number) => Math.sqrt(dx * dx + dy * dy);
+
+const length = (v: Vec) => distance(v.x, v.y);
 
 export function inside(rect: Rect, point: Vec): boolean {
   return (
@@ -112,13 +121,13 @@ function collide(ball: Ball, rect: Rect): Ball {
   };
   const dx = ball.pos.x - nearest.x;
   const dy = ball.pos.y - nearest.y;
-  const distance = Math.hypot(dx, dy);
-  if (distance >= BALL_RADIUS) return ball;
+  const gap = distance(dx, dy);
+  if (gap >= BALL_RADIUS) return ball;
 
   let normal: Vec;
   let pos: Vec;
-  if (distance > 0) {
-    normal = { x: dx / distance, y: dy / distance };
+  if (gap > 0) {
+    normal = { x: dx / gap, y: dy / gap };
     pos = {
       x: nearest.x + normal.x * BALL_RADIUS,
       y: nearest.y + normal.y * BALL_RADIUS,
@@ -172,10 +181,7 @@ export function step(
   }
 
   const speed = length(next.vel);
-  const toHole = Math.hypot(
-    next.pos.x - level.hole.x,
-    next.pos.y - level.hole.y,
-  );
+  const toHole = distance(next.pos.x - level.hole.x, next.pos.y - level.hole.y);
   if (toHole < HOLE_RADIUS && speed < CAPTURE_SPEED) {
     return {
       ball: { pos: { ...level.hole }, vel: { x: 0, y: 0 } },
@@ -214,6 +220,106 @@ export function simulateShot(
       return { result: next.result, pos: ball.pos };
   }
   return { result: "stopped", pos: ball.pos };
+}
+
+/**
+ * A putt as the leaderboard sees it: the ball's launch velocity. Sending the
+ * velocity (not the angle) keeps trigonometry out of the replay.
+ */
+export type Shot = Vec;
+
+/** Where one hole stands: the ball, where it was last hit from, the count. */
+export interface HoleState {
+  ball: Ball;
+  /** Where the last putt started, for water penalties. */
+  lie: Vec;
+  strokes: number;
+}
+
+/** Slack for rounding in a launch velocity's speed. */
+const SPEED_SLACK = 1e-6;
+/** No putt rolls this long; friction stops a full-power one in 4 seconds. */
+const MAX_ROLL_STEPS = 10 / STEP;
+
+/** The start of a hole: ball on the tee, no strokes. */
+export function teeOff(level: Level): HoleState {
+  return {
+    ball: { pos: { ...level.start }, vel: { x: 0, y: 0 } },
+    lie: { ...level.start },
+    strokes: 0,
+  };
+}
+
+/** Whether the game would allow this putt: between minimum and full power. */
+export function isLegalShot(shot: Shot): boolean {
+  if (!Number.isFinite(shot.x) || !Number.isFinite(shot.y)) return false;
+  const speed = length(shot);
+  return (
+    speed >= MIN_POWER * MAX_SPEED - SPEED_SLACK &&
+    speed <= MAX_SPEED + SPEED_SLACK
+  );
+}
+
+/** Hits the ball: counts a stroke and remembers where it was hit from. */
+export function strike(state: HoleState, shot: Shot): HoleState {
+  return {
+    ball: { pos: state.ball.pos, vel: { ...shot } },
+    lie: { ...state.ball.pos },
+    strokes: state.strokes + 1,
+  };
+}
+
+/**
+ * Advances a rolling ball by one physics step and applies the rules: a ball
+ * in the water costs a stroke and goes back to where it was hit from.
+ */
+export function advance(
+  level: Level,
+  state: HoleState,
+): { state: HoleState; result: StepResult } {
+  const { ball, result } = step(level, state.ball);
+  if (result === "water") {
+    return {
+      state: {
+        ball: { pos: { ...state.lie }, vel: { x: 0, y: 0 } },
+        lie: state.lie,
+        strokes: state.strokes + 1,
+      },
+      result,
+    };
+  }
+  return { state: { ...state, ball }, result };
+}
+
+/**
+ * Replays a whole round from its putts and returns the strokes per hole.
+ * Returns null unless every putt is legal and the putts play exactly one
+ * complete round: the last one drops into the last hole.
+ */
+export function playRound(
+  shots: Shot[],
+  levels: Level[] = LEVELS,
+): number[] | null {
+  if (shots.length > MAX_SHOTS) return null;
+  const scores: number[] = [];
+  let state = levels.length > 0 ? teeOff(levels[0]) : null;
+
+  for (const shot of shots) {
+    // A putt after the last hole, or one the game wouldn't allow.
+    if (!state || !isLegalShot(shot)) return null;
+    const level = levels[scores.length];
+    state = strike(state, shot);
+    let result: StepResult = "rolling";
+    for (let i = 0; i < MAX_ROLL_STEPS && result === "rolling"; i++) {
+      ({ state, result } = advance(level, state));
+    }
+    if (result === "sunk") {
+      scores.push(state.strokes);
+      const next = levels[scores.length];
+      state = next ? teeOff(next) : null;
+    }
+  }
+  return scores.length === levels.length ? scores : null;
 }
 
 /** Golf name for a score on one hole. */
