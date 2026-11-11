@@ -130,3 +130,40 @@ export function renderNotFoundPage(profile: Profile): string {
 </html>
 `;
 }
+
+/**
+ * Pages listed in the domain's sitemap: the hub, then each section served
+ * under it (the resume at /resume/, later /photos/ and so on).
+ */
+export function sitemapUrls(profile: Profile): string[] {
+  return [`${profile.hubUrl}/`, `${profile.siteUrl}/`];
+}
+
+/**
+ * robots.txt for the whole domain. Crawlers only read it at the root, so the
+ * hub serves it on behalf of every section.
+ */
+export function renderRobotsTxt(profile: Profile): string {
+  return `User-Agent: *
+Allow: /
+
+Sitemap: ${profile.hubUrl}/sitemap.xml
+`;
+}
+
+/** sitemap.xml for the whole domain. */
+export function renderSitemap(profile: Profile): string {
+  const urls = sitemapUrls(profile)
+    .map(
+      (url) => `  <url>
+    <loc>${escapeHtml(url)}</loc>
+    <changefreq>monthly</changefreq>
+  </url>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`;
+}
