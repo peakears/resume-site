@@ -100,7 +100,7 @@ Versions follow [semver](https://semver.org/) and are cut automatically by [sema
 | at least one `fix:` or `perf:`                                   | patch (1.4.2 → 1.4.3) |
 | only `docs:`, `test:`, `ci:`, `chore:`, `refactor:`, ...         | no release            |
 
-It then pushes a `vX.Y.Z` tag and publishes a [GitHub Release](https://github.com/peakears/resume-site/releases) whose notes list the features and fixes, with links to each commit, and attaches that version's resume PDF. Released PRs get a `released` label and a comment saying which version they shipped in.
+It then pushes a `vX.Y.Z` tag and publishes a [GitHub Release](https://github.com/peakears/resume-site/releases) whose notes list the features and fixes, with links to each commit, and attaches that version's resume PDF. Released PRs get no comment or label, so a release doesn't send an email per PR.
 
 Nothing is committed back to `main`: the tags and releases are the changelog, and `version` in `package.json` stays a placeholder. To see the current version, look at the latest tag (`git describe --tags --abbrev=0`) or release.
 
@@ -114,7 +114,6 @@ patrickkearney.dev
 ├── /photos, /photos/*  →  photos Worker (later)
 └── /*                  →  hub Worker (this repo, hub/dist/)
 
-home.patrickkearney.dev/*  →  301 to patrickkearney.dev/resume/*
 ```
 
 Cloudflare builds straight from GitHub:

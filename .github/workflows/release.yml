@@ -25,8 +25,9 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write # push the tag and create the release
-      issues: write # comment on issues fixed by the release
-      pull-requests: write # comment on and label released PRs
+      # Open an issue if a release fails. Released PRs get no comment or
+      # label (see .releaserc.json), because each one emails the owner.
+      issues: write
     steps:
       - uses: actions/checkout@v7
         with:
