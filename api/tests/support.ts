@@ -8,7 +8,7 @@ import {
   strike,
   teeOff,
   type Shot,
-  type StepResult,
+  type HoleResult,
 } from "../../src/lib/golf";
 import { COURSE_VERSION } from "../../src/lib/leaderboard";
 
@@ -46,7 +46,7 @@ export function playTheCourse(): Shot[] {
   const shots: Shot[] = [];
   for (const level of LEVELS) {
     let state = teeOff(level);
-    let result: StepResult = "rolling";
+    let result: HoleResult = "rolling";
     while (result !== "sunk") {
       let best: { shot: Shot; gap: number; sunk: boolean } | null = null;
       for (let degrees = 0; degrees < 360 && !best?.sunk; degrees += 2) {

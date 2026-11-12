@@ -19,6 +19,7 @@ The game's physics is deterministic: a fixed 1/120 s step and pure functions in 
 - **The replay must match the browser to the last bit, in every browser.** JavaScript engines agree exactly on `+ - * /` and `Math.sqrt`, but not on `Math.hypot`, `Math.sin` or `Math.cos`. So the physics uses only the exact operations, and a putt is recorded as its launch velocity (`Shot`), not an angle and power: the trigonometry runs once, in the browser, before the putt is recorded.
 - **No accounts.** Players enter three-letter initials (A to Z), which leaves little room for abuse in a name. Posts are rate-limited per visitor with Cloudflare's rate-limit binding, and no IP addresses are stored. Cloudflare Turnstile is added only if spam appears.
 - **Ties rank by earliest submission.**
+- **A hole scores at most 10 strokes.** On the 10th stroke the ball is picked up and the hole counts 10, whether the putt stopped short or went in the water, and the game says so. Every round can therefore be finished and posted, and a round is at most 30 putts, which also keeps a crafted submission cheap to replay on the server.
 
 ## Consequences
 

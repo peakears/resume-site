@@ -32,6 +32,8 @@ export interface Ball {
 }
 
 export type StepResult = "rolling" | "stopped" | "sunk" | "water";
+/** What happens to a hole as it is played: a putt's outcome, or a pickup. */
+export type HoleResult = StepResult | "pickup";
 
 export const COURSE = { width: 600, height: 360 } as const;
 export const BALL_RADIUS = 6;
@@ -51,10 +53,10 @@ export const STEP = 1 / 120;
 /** Weakest putt the game accepts, as a share of full power. */
 export const MIN_POWER = 0.05;
 /**
- * Most putts a round can have and still be scored. Real rounds take a dozen
- * or so; the cap keeps a crafted one cheap to replay on the server.
+ * Most strokes a hole can score. On the 10th stroke the ball is picked up
+ * and the hole counts 10, so every round can be finished and posted.
  */
-export const MAX_SHOTS = 60;
+export const MAX_STROKES = 10;
 
 export const LEVELS: Level[] = [
   {
@@ -85,6 +87,9 @@ export const LEVELS: Level[] = [
     water: [{ x: 200, y: 150, w: 140, h: 210 }],
   },
 ];
+
+/** Most putts a round can have: every hole at the stroke limit. */
+export const MAX_SHOTS = LEVELS.length * MAX_STROKES;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -274,22 +279,27 @@ export function strike(state: HoleState, shot: Shot): HoleState {
 
 /**
  * Advances a rolling ball by one physics step and applies the rules: a ball
- * in the water costs a stroke and goes back to where it was hit from.
+ * in the water costs a stroke and goes back to where it was hit from, and a
+ * ball that is still in play after the last allowed stroke is picked up.
  */
 export function advance(
   level: Level,
   state: HoleState,
-): { state: HoleState; result: StepResult } {
+): { state: HoleState; result: HoleResult } {
   const { ball, result } = step(level, state.ball);
   if (result === "water") {
+    const strokes = Math.min(MAX_STROKES, state.strokes + 1);
     return {
       state: {
         ball: { pos: { ...state.lie }, vel: { x: 0, y: 0 } },
         lie: state.lie,
-        strokes: state.strokes + 1,
+        strokes,
       },
-      result,
+      result: strokes >= MAX_STROKES ? "pickup" : "water",
     };
+  }
+  if (result === "stopped" && state.strokes >= MAX_STROKES) {
+    return { state: { ...state, ball }, result: "pickup" };
   }
   return { state: { ...state, ball }, result };
 }
@@ -303,7 +313,7 @@ export function playRound(
   shots: Shot[],
   levels: Level[] = LEVELS,
 ): number[] | null {
-  if (shots.length > MAX_SHOTS) return null;
+  if (shots.length > levels.length * MAX_STROKES) return null;
   const scores: number[] = [];
   let state = levels.length > 0 ? teeOff(levels[0]) : null;
 
@@ -312,11 +322,11 @@ export function playRound(
     if (!state || !isLegalShot(shot)) return null;
     const level = levels[scores.length];
     state = strike(state, shot);
-    let result: StepResult = "rolling";
+    let result: HoleResult = "rolling";
     for (let i = 0; i < MAX_ROLL_STEPS && result === "rolling"; i++) {
       ({ state, result } = advance(level, state));
     }
-    if (result === "sunk") {
+    if (result === "sunk" || result === "pickup") {
       scores.push(state.strokes);
       const next = levels[scores.length];
       state = next ? teeOff(next) : null;

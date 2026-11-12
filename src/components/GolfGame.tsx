@@ -13,6 +13,7 @@ import {
   COURSE,
   HOLE_RADIUS,
   LEVELS,
+  MAX_STROKES,
   MIN_POWER,
   STEP,
   advance,
@@ -191,6 +192,16 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
           setScores((s) => [...s, strokes]);
           setMessage(
             `${scoreName(strokes, level.par)} ${strokes} ${strokes === 1 ? "stroke" : "strokes"} on a par ${level.par}.`,
+          );
+          setPhase("holed");
+          return;
+        }
+        if (next.result === "pickup") {
+          const { strokes } = next.state;
+          setStrokes(strokes);
+          setScores((s) => [...s, strokes]);
+          setMessage(
+            `Maximum score! ${MAX_STROKES} strokes is the most a hole can count, so the ball is picked up. On to the next hole.`,
           );
           setPhase("holed");
           return;

@@ -7,6 +7,7 @@ import {
   LEVELS,
   MAX_SHOTS,
   MAX_SPEED,
+  MAX_STROKES,
   MIN_POWER,
   advance,
   angleTo,
@@ -190,11 +191,58 @@ describe("the rules", () => {
   });
 });
 
+describe("the stroke limit", () => {
+  const pond: Level = { ...open, water: [{ x: 200, y: 0, w: 50, h: 360 }] };
+  /** A putt that stops a couple of units from the tee. */
+  const nudge = launch(Math.PI, MIN_POWER);
+
+  /** Plays one putt to the end of its roll. */
+  const roll = (level: Level, strokes: number, shot: Shot) => {
+    let state = { ...strike(teeOff(level), shot), strokes: strokes + 1 };
+    let result: string = "rolling";
+    while (result === "rolling") ({ state, result } = advance(level, state));
+    return { state, result };
+  };
+
+  it("lets the last allowed stroke hole out", () => {
+    const { state, result } = roll(open, MAX_STROKES - 1, launch(0, 0.65));
+    expect(result).toBe("sunk");
+    expect(state.strokes).toBe(MAX_STROKES);
+  });
+
+  it("picks up a ball still in play after the last stroke", () => {
+    const { state, result } = roll(open, MAX_STROKES - 1, nudge);
+    expect(result).toBe("pickup");
+    expect(state.strokes).toBe(MAX_STROKES);
+  });
+
+  it("keeps playing on until the last stroke", () => {
+    expect(roll(open, MAX_STROKES - 2, nudge).result).toBe("stopped");
+  });
+
+  it("picks up after a splash on the last stroke, without going over", () => {
+    const { state, result } = roll(pond, MAX_STROKES - 1, launch(0, 0.6));
+    expect(result).toBe("pickup");
+    expect(state.strokes).toBe(MAX_STROKES);
+  });
+
+  it("takes a splash on the second last stroke as the last", () => {
+    const { state, result } = roll(pond, MAX_STROKES - 2, launch(0, 0.6));
+    expect(result).toBe("pickup");
+    expect(state.strokes).toBe(MAX_STROKES);
+  });
+
+  it("allows as many putts in a round as the limit on every hole", () => {
+    expect(MAX_SHOTS).toBe(LEVELS.length * MAX_STROKES);
+  });
+});
+
 describe("replaying a round", () => {
   // One hole, 400 units straight ahead: 65% power holes it, 30% stops short.
   const ace = launch(0, 0.65);
   const short = launch(0, 0.3);
   const tapIn = launch(0, 0.57);
+  const nudge = launch(Math.PI, MIN_POWER);
   const course = [open, open];
 
   it("scores each hole from the putts alone", () => {
@@ -222,6 +270,21 @@ describe("replaying a round", () => {
     const sent = JSON.parse(JSON.stringify(shots)) as Shot[];
     expect(sent).toEqual(shots);
     expect(playRound(sent, course)).toEqual([1, 1]);
+  });
+
+  it("scores a hole at the limit and moves on to the next", () => {
+    const nudges = Array.from({ length: MAX_STROKES }, () => nudge);
+    expect(playRound([...nudges, ace], course)).toEqual([MAX_STROKES, 1]);
+  });
+
+  it("scores the limit when the last stroke ends in the water", () => {
+    const pond: Level = { ...open, water: [{ x: 200, y: 0, w: 50, h: 360 }] };
+    const nudges = Array.from({ length: MAX_STROKES - 1 }, () => nudge);
+    const splash = launch(0, 0.6);
+    expect(playRound([...nudges, splash, ace], [pond, open])).toEqual([
+      MAX_STROKES,
+      1,
+    ]);
   });
 
   it("rejects a round that isn't finished", () => {

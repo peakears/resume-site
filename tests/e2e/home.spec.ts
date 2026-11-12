@@ -296,6 +296,43 @@ test.describe("home page", () => {
     await expect(game.getByRole("table", { name: "Scorecard" })).toBeVisible();
   });
 
+  test("picks up the ball and moves on after 10 strokes on a hole", async ({
+    page,
+  }) => {
+    await page.goto(resumeHome);
+    const prompt = page.getByRole("textbox", { name: "Terminal command" });
+    await prompt.fill("golf");
+    await prompt.press("Enter");
+    const game = page.getByRole("dialog", { name: "Mini golf" });
+    const green = game.getByRole("application", { name: "Putting green" });
+    await green.focus();
+
+    // Minimum power: each putt rolls a few units and stops far from the hole.
+    for (let i = 0; i < 9; i++) await page.keyboard.press("ArrowDown");
+    await expect(game).toContainText("Power 5%");
+
+    for (let stroke = 1; stroke <= 10; stroke++) {
+      // A press while the ball is still rolling is ignored, so try again.
+      await expect(async () => {
+        await page.keyboard.press(" ");
+        await expect(game).toContainText(`Strokes ${stroke}`, { timeout: 250 });
+      }).toPass();
+      if (stroke < 10) await expect(game).not.toContainText("Maximum score");
+    }
+
+    await expect(game.getByRole("status")).toContainText(
+      "Maximum score! 10 strokes is the most a hole can count",
+    );
+    await game.getByRole("button", { name: "Next hole" }).click();
+    await expect(game).toContainText("Hole 2 of 3");
+    await expect(game).toContainText("Strokes 0");
+    const you = game
+      .getByRole("table", { name: "Scorecard" })
+      .getByRole("row", { name: /^You/ });
+    // Hole 1 counts 10; the other holes aren't played yet.
+    await expect(you.getByRole("cell").first()).toHaveText("10");
+  });
+
   test("reveals content as it scrolls into view", async ({ page }) => {
     await page.goto(resumeHome);
     const roles = page.locator("#experience li.reveal");
