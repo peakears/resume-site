@@ -9,6 +9,7 @@ Personal resume site. Next.js 16 App Router, statically exported (`output: "expo
 - All content lives in `src/data/profile.ts`. Components take data as props and never import the profile directly, except `src/app/page.tsx` and `layout.tsx`.
 - Colours come from CSS variables in `src/app/globals.css` (`bg-background`, `text-muted`, `border-border`, `bg-accent`, ...). Don't hard-code Tailwind palette colours; dark mode works by redefining the variables under `.dark`.
 - A `PostToolUse` hook (`.claude/settings.json` → `.claude/hooks/format.mjs`) runs Prettier on every file you edit or write, so there is no need to run `npm run format` after edits. If a later `Edit` misses because the hook reformatted the file, re-read it first.
+- The backend is a separate Cloudflare Worker in `api/` (Hono, D1), served at `/api/*` for every section of the domain. Each section's routes go in their own folder and prefix (`api/src/golf/` → `/api/golf/...`), with tests in `api/tests/`. It has its own `tsconfig.json` (no DOM) and may import pure modules from `src/lib/` by relative path. See `docs/decisions/0004-golf-leaderboard-backend.md`.
 - Every new component gets a unit test in `tests/unit/` that queries by role and accessible name.
 - User-visible behaviour (navigation, theme, layout) gets a Playwright test in `tests/e2e/`.
 
@@ -20,7 +21,7 @@ Run `npm run check` (typecheck, lint, format check, unit tests, E2E). It must pa
 
 ## Git
 
-Work on `feature/*` branches off `develop` and open a PR into `develop`. Use Conventional Commit messages (see Versioning below). `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.
+Work on branches off `develop` named `<type>/<short-slug>` and open a PR into `develop`. The type is a Conventional Commit type (`feature`, `fix`, `perf`, `refactor`, `docs`, `test`, `ci`, `build`, `chore`, `style`, `revert`) and the slug is lower-case words joined by hyphens, e.g. `feature/golf-leaderboard-api`. A husky `pre-push` hook and CI's branch-name job reject anything else (`npm run branch:check` checks the current branch), so name the branch before the first push, and never push under another name. Use Conventional Commit messages (see Versioning below). `main` and `develop` are protected; never push to them directly. CI (`.github/workflows/ci.yml`) must pass before merging.
 
 ## Versioning and releases
 

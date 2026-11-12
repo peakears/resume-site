@@ -13,14 +13,18 @@ import {
   COURSE,
   HOLE_RADIUS,
   LEVELS,
+  MAX_STROKES,
+  MIN_POWER,
   STEP,
+  advance,
   angleTo,
   launch,
   scoreName,
-  step,
+  strike,
+  teeOff,
   toPar,
-  type Ball,
-  type Level,
+  type HoleState,
+  type Shot,
   type Vec,
 } from "@/lib/golf";
 
@@ -32,11 +36,6 @@ const DEFAULT_POWER = 0.5;
 
 const toDegrees = (radians: number) =>
   Math.round(((radians * 180) / Math.PI + 360) % 360);
-
-const freshBall = (level: Level): Ball => ({
-  pos: { ...level.start },
-  vel: { x: 0, y: 0 },
-});
 
 /** A three-hole putting game in a modal dialog. */
 export function GolfGame({ onClose }: { onClose: () => void }) {
@@ -54,9 +53,11 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
   const [power, setPower] = useState(DEFAULT_POWER);
   const [message, setMessage] = useState("");
 
-  const ball = useRef<Ball>(freshBall(level));
-  // Where the last putt started, for water penalties.
-  const lastLie = useRef<Vec>({ ...level.start });
+  // The ball and the stroke count. The rules live in golf.ts, so the
+  // leaderboard server can replay a round and reach the same score.
+  const play = useRef<HoleState>(teeOff(level));
+  // Every putt of the round, in order: what the server will replay.
+  const shots = useRef<Shot[]>([]);
   const dragging = useRef(false);
 
   // Open as a modal so focus stays inside and Escape closes it.
@@ -133,7 +134,7 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
       ctx.fill();
     }
 
-    const { pos } = ball.current;
+    const { pos } = play.current.ball;
 
     // Aim guide: direction and power.
     if (phase === "aiming") {
@@ -184,9 +185,10 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
       last = now;
       while (pending >= STEP) {
         pending -= STEP;
-        const next = step(level, ball.current);
-        ball.current = next.ball;
+        const next = advance(level, play.current);
+        play.current = next.state;
         if (next.result === "sunk") {
+          const { strokes } = next.state;
           setScores((s) => [...s, strokes]);
           setMessage(
             `${scoreName(strokes, level.par)} ${strokes} ${strokes === 1 ? "stroke" : "strokes"} on a par ${level.par}.`,
@@ -194,9 +196,18 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
           setPhase("holed");
           return;
         }
+        if (next.result === "pickup") {
+          const { strokes } = next.state;
+          setStrokes(strokes);
+          setScores((s) => [...s, strokes]);
+          setMessage(
+            `Maximum score! ${MAX_STROKES} strokes is the most a hole can count, so the ball is picked up. On to the next hole.`,
+          );
+          setPhase("holed");
+          return;
+        }
         if (next.result === "water") {
-          ball.current = { pos: { ...lastLie.current }, vel: { x: 0, y: 0 } };
-          setStrokes((s) => s + 1);
+          setStrokes(next.state.strokes);
           setMessage(
             "Splash! One-stroke penalty. Play again from your last spot.",
           );
@@ -213,21 +224,21 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [draw, level, phase, strokes]);
+  }, [draw, level, phase]);
 
   const putt = () => {
-    if (phase !== "aiming" || power < 0.05) return;
-    lastLie.current = { ...ball.current.pos };
-    ball.current = { ...ball.current, vel: launch(angle, power) };
-    setStrokes((s) => s + 1);
+    if (phase !== "aiming" || power < MIN_POWER) return;
+    const shot = launch(angle, power);
+    shots.current.push(shot);
+    play.current = strike(play.current, shot);
+    setStrokes(play.current.strokes);
     setMessage("");
     setPhase("rolling");
   };
 
   const goToHole = (index: number) => {
     const next = LEVELS[index];
-    ball.current = freshBall(next);
-    lastLie.current = { ...next.start };
+    play.current = teeOff(next);
     setLevelIndex(index);
     setStrokes(0);
     setAngle(angleTo(next.start, next.hole));
@@ -250,6 +261,7 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
   };
 
   const playAgain = () => {
+    shots.current = [];
     setScores([]);
     goToHole(0);
   };
@@ -264,7 +276,7 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
   };
 
   const aimFrom = (point: Vec) => {
-    const { pos } = ball.current;
+    const { pos } = play.current.ball;
     const pull = Math.hypot(point.x - pos.x, point.y - pos.y);
     setAngle(angleTo(point, pos));
     setPower(Math.min(1, pull / FULL_POWER_DRAG));

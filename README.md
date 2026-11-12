@@ -35,6 +35,9 @@ npm run dev                       # http://localhost:3000
 | `npm run resume:pdf`    | Build the site and regenerate `public/resume.pdf` from it |
 | `npm run resume:check`  | Fail if the PDF isn't one page or is out of date          |
 | `npm run commitlint`    | Check this branch's commit messages against `develop`     |
+| `npm run api:dev`       | Run the API Worker locally with a local database          |
+| `npm run api:migrate`   | Apply database migrations to the local database           |
+| `npm run api:build`     | Bundle the API Worker without deploying it                |
 | `npm run check`         | Everything above, the same gate CI will run               |
 
 ## Project structure
@@ -45,6 +48,7 @@ src/
   components/   Presentational components, one per section
   data/         profile.ts: all resume content, fully typed
   lib/          Small pure helpers (dates, base path, hub page)
+api/            The API Worker: routes, database migrations, tests
 tests/
   unit/         Vitest + Testing Library component and helper tests
   e2e/          Playwright tests against the real static build
@@ -78,7 +82,9 @@ Prettier formats everything, with the Tailwind plugin sorting classes; CI fails 
 
 - `main`: production. Only updated by a PR from `develop`.
 - `develop`: integration branch.
-- `feature/*`, `fix/*`: short-lived branches, merged into `develop` through a PR.
+- `<type>/<slug>`: short-lived branches, merged into `develop` through a PR. The type is a Conventional Commit type, so it reads the same way as the commits that decide the version: `feature`, `fix`, `perf`, `refactor`, `docs`, `test`, `ci`, `build`, `chore`, `style` or `revert`. The slug is lower-case words joined by hyphens, up to 50 characters: `feature/golf-leaderboard-api`, `fix/mobile-nav-overlap`. The branch type doesn't set the release version (the commit messages do), it only keeps the names consistent.
+
+Branch names are checked by a pre-push hook and by CI (see below). Dependabot's own branches are exempt.
 
 Both `main` and `develop` are protected: changes arrive through pull requests, and CI must pass first.
 
@@ -86,10 +92,13 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fe
 
 ### Git hooks
 
-`npm install` sets up two [husky](https://typicode.github.io/husky/) hooks, so problems are caught at commit time rather than in CI:
+`npm install` sets up three [husky](https://typicode.github.io/husky/) hooks, so problems are caught at commit time rather than in CI:
 
 - **pre-commit:** [lint-staged](https://github.com/lint-staged/lint-staged) runs on staged files only ([`lint-staged.config.mjs`](lint-staged.config.mjs)). Code gets `eslint --fix` then Prettier; everything else gets Prettier. Fixes are added to the commit, and an ESLint error that can't be fixed stops it.
 - **commit-msg:** commitlint rejects a message that isn't a valid Conventional Commit, so you can retype it before it's pushed.
+- **pre-push:** [`scripts/check-branch-name.mts`](scripts/check-branch-name.mts) rejects a push that would create a branch not named `<type>/<slug>`, before anything is sent. Rename it with `git branch -m <new-name>`. The rules are in [`src/lib/branchName.ts`](src/lib/branchName.ts), and `npm run branch:check` checks the branch you're on.
+
+CI runs the same check on every pull request (the "Branch name" job). To make it block merging, add it to the required checks in the branch protection rules for `develop` and `main`.
 
 Type-checking and tests stay in `npm run check` and CI, which still run everything. `git commit --no-verify` skips the hooks in an emergency, and `HUSKY=0` turns them off for a command.
 
@@ -182,6 +191,34 @@ It's deployed as a **second Cloudflare Worker** ([`hub/wrangler.jsonc`](hub/wran
 | Route             | `patrickkearney.dev/*` (in `hub/wrangler.jsonc`)  |
 
 Playwright tests it alongside the resume site (`hub-desktop` and `hub-mobile` projects), including axe scans in light and dark mode.
+
+## API (patrickkearney.dev/api)
+
+The backend is a **third Cloudflare Worker**, in [`api/`](api), written in TypeScript with [Hono](https://hono.dev) and a [D1](https://developers.cloudflare.com/d1/) (SQLite) database. It serves `patrickkearney.dev/api/*` for the whole domain: each section mounts its routes under its own prefix, so the mini-golf leaderboard will live at `/api/golf/...`. See [ADR 0004](docs/decisions/0004-golf-leaderboard-backend.md) for the reasoning.
+
+```bash
+npm run api:migrate   # create the tables in a local database (first time, and after new migrations)
+npm run api:dev       # http://localhost:8787/api/health
+```
+
+| Route                          | What it does                                                                                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `GET /api/health`              | Confirms the Worker can reach its database                                                                 |
+| `POST /api/golf/scores`        | Takes a finished round's putts, replays them with [`golf.ts`](src/lib/golf.ts) and saves the score it gets |
+| `GET /api/golf/scores?limit=N` | The top scores on the current course (10 by default, at most 50)                                           |
+
+The request and its rules are one shared schema, [`src/lib/leaderboard.ts`](src/lib/leaderboard.ts). The API tests run against a real local D1 database built from the migrations. It isn't deployed yet. Deploying needs, once:
+
+1. `npx wrangler d1 create golf-leaderboard`, then paste the database ID into [`api/wrangler.jsonc`](api/wrangler.jsonc).
+2. A Cloudflare Workers project connected to this repository:
+
+| Setting           | Value                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root directory    | `/` (repository root)                                                                                                                       |
+| Build command     | none                                                                                                                                        |
+| Deploy command    | `npx wrangler d1 migrations apply golf-leaderboard --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc` |
+| Production branch | `main`                                                                                                                                      |
+| Route             | `patrickkearney.dev/api/*` (in `api/wrangler.jsonc`)                                                                                        |
 
 ## Roadmap
 

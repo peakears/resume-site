@@ -7,7 +7,7 @@
     "build": "next build && node scripts/nest-export.mts",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "next typegen && tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit && npm run api:types && tsc --noEmit -p api",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -20,13 +20,19 @@
     "resume:check": "npm run build && node scripts/check-resume-pdf.mts",
     "hub:build": "node scripts/build-hub.mts",
     "hub:preview": "npm run hub:build && serve hub/dist -l 4175",
+    "api:types": "wrangler types api/worker-configuration.d.ts --config api/wrangler.jsonc",
+    "api:dev": "wrangler dev --config api/wrangler.jsonc",
+    "api:migrate": "wrangler d1 migrations apply golf-leaderboard --local --config api/wrangler.jsonc",
+    "api:build": "wrangler deploy --dry-run --config api/wrangler.jsonc",
+    "branch:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-branch-name.mts --current",
     "commitlint": "commitlint --from origin/develop --to HEAD --verbose",
     "prepare": "husky"
   },
   "dependencies": {
     "next": "16.4.5",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
@@ -47,6 +53,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "geist": "^1.9.2",
+    "hono": "^4.13.18",
     "husky": "^9.1.7",
     "jsdom": "^30.1.3",
     "lint-staged": "^17.6.0",
@@ -58,7 +65,8 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "wrangler": "^4.160.1"
   },
   "engines": {
     "node": ">=22"
