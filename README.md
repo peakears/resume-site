@@ -82,7 +82,9 @@ Prettier formats everything, with the Tailwind plugin sorting classes; CI fails 
 
 - `main`: production. Only updated by a PR from `develop`.
 - `develop`: integration branch.
-- `feature/*`, `fix/*`: short-lived branches, merged into `develop` through a PR.
+- `<type>/<slug>`: short-lived branches, merged into `develop` through a PR. The type is a Conventional Commit type, so it reads the same way as the commits that decide the version: `feature`, `fix`, `perf`, `refactor`, `docs`, `test`, `ci`, `build`, `chore`, `style` or `revert`. The slug is lower-case words joined by hyphens, up to 50 characters: `feature/golf-leaderboard-api`, `fix/mobile-nav-overlap`. The branch type doesn't set the release version (the commit messages do), it only keeps the names consistent.
+
+Branch names are checked by a pre-push hook and by CI (see below). Dependabot's own branches are exempt.
 
 Both `main` and `develop` are protected: changes arrive through pull requests, and CI must pass first.
 
@@ -90,10 +92,13 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`fe
 
 ### Git hooks
 
-`npm install` sets up two [husky](https://typicode.github.io/husky/) hooks, so problems are caught at commit time rather than in CI:
+`npm install` sets up three [husky](https://typicode.github.io/husky/) hooks, so problems are caught at commit time rather than in CI:
 
 - **pre-commit:** [lint-staged](https://github.com/lint-staged/lint-staged) runs on staged files only ([`lint-staged.config.mjs`](lint-staged.config.mjs)). Code gets `eslint --fix` then Prettier; everything else gets Prettier. Fixes are added to the commit, and an ESLint error that can't be fixed stops it.
 - **commit-msg:** commitlint rejects a message that isn't a valid Conventional Commit, so you can retype it before it's pushed.
+- **pre-push:** [`scripts/check-branch-name.mts`](scripts/check-branch-name.mts) rejects a push that would create a branch not named `<type>/<slug>`, before anything is sent. Rename it with `git branch -m <new-name>`. The rules are in [`src/lib/branchName.ts`](src/lib/branchName.ts), and `npm run branch:check` checks the branch you're on.
+
+CI runs the same check on every pull request (the "Branch name" job). To make it block merging, add it to the required checks in the branch protection rules for `develop` and `main`.
 
 Type-checking and tests stay in `npm run check` and CI, which still run everything. `git commit --no-verify` skips the hooks in an emergency, and `HUSKY=0` turns them off for a command.
 

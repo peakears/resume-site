@@ -16,6 +16,24 @@ permissions:
   contents: read
 
 jobs:
+  branch-name:
+    name: Branch name
+    # Branches follow <type>/<slug>, in the same vocabulary as commit types.
+    # Dependabot names its own branches.
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'dependabot/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      # No npm ci: the check has no dependencies.
+      - name: Check the branch name
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-branch-name.mts "$HEAD_REF"
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+
   commitlint:
     name: Commit messages
     # Commit types decide the next release version, so check them before merge.

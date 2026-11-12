@@ -24,6 +24,7 @@
     "api:dev": "wrangler dev --config api/wrangler.jsonc",
     "api:migrate": "wrangler d1 migrations apply golf-leaderboard --local --config api/wrangler.jsonc",
     "api:build": "wrangler deploy --dry-run --config api/wrangler.jsonc",
+    "branch:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-branch-name.mts --current",
     "commitlint": "commitlint --from origin/develop --to HEAD --verbose",
     "prepare": "husky"
   },
