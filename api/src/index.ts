@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { scores } from "./golf/scores";
 
 /**
  * The API for patrickkearney.dev, served at /api/*. Each section of the site
@@ -11,6 +12,8 @@ app.get("/health", async (c) => {
   await c.env.LEADERBOARD.prepare("SELECT 1").first();
   return c.json({ ok: true });
 });
+
+app.route("/golf", scores);
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 

@@ -50,8 +50,11 @@ export const RESTITUTION = 0.7;
 export const STEP = 1 / 120;
 /** Weakest putt the game accepts, as a share of full power. */
 export const MIN_POWER = 0.05;
-/** Most putts a round can have and still be scored. */
-export const MAX_SHOTS = 200;
+/**
+ * Most putts a round can have and still be scored. Real rounds take a dozen
+ * or so; the cap keeps a crafted one cheap to replay on the server.
+ */
+export const MAX_SHOTS = 60;
 
 export const LEVELS: Level[] = [
   {

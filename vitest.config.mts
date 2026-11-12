@@ -26,6 +26,7 @@ export default defineConfig({
           name: "api",
           environment: "node",
           include: ["api/tests/**/*.test.ts"],
+          testTimeout: 30_000,
         },
       },
     ],

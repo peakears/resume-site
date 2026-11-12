@@ -14,5 +14,6 @@ CREATE TABLE golf_scores (
   created_at     TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
--- The leaderboard query: best total first, earliest first among ties.
-CREATE INDEX golf_scores_rank ON golf_scores (course_version, total, created_at);
+-- The leaderboard query: best total first. Ties are ordered by id, which is
+-- the order rounds were posted in (every index also holds the row id).
+CREATE INDEX golf_scores_rank ON golf_scores (course_version, total);
