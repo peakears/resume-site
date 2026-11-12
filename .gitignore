@@ -50,6 +50,9 @@ next-env.d.ts
 
 # cloudflare wrangler
 /.wrangler/
+/api/.wrangler/
+# written by `npm run api:types`
+/api/worker-configuration.d.ts
 
 # hub page build output
 /hub/dist/

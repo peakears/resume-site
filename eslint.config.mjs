@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    "api/worker-configuration.d.ts",
+    "api/.wrangler/**",
   ]),
 ]);
 

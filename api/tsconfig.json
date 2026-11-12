@@ -1,0 +1,18 @@
+{
+  // The API runs on Cloudflare Workers, not in a browser or in Node, so it is
+  // type-checked on its own: no DOM, and the Workers types that
+  // `wrangler types` writes to worker-configuration.d.ts.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "types": []
+  },
+  "include": ["worker-configuration.d.ts", "src/**/*.ts", "tests/**/*.ts"]
+}
