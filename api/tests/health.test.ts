@@ -13,7 +13,7 @@ const database = (works: boolean) =>
   }) as unknown as D1Database;
 
 const get = (path: string, works = true) =>
-  app.request(path, {}, { DB: database(works) } as Env);
+  app.request(path, {}, { LEADERBOARD: database(works) } as Env);
 
 describe("the API", () => {
   it("reports that it is up when the database answers", async () => {

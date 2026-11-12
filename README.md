@@ -198,16 +198,16 @@ npm run api:dev       # http://localhost:8787/api/health
 
 So far it has one route, `GET /api/health`, which confirms the Worker can reach its database. It isn't deployed yet. Deploying needs, once:
 
-1. `npx wrangler d1 create patrickkearney-api`, then paste the database ID into [`api/wrangler.jsonc`](api/wrangler.jsonc).
+1. `npx wrangler d1 create golf-leaderboard`, then paste the database ID into [`api/wrangler.jsonc`](api/wrangler.jsonc).
 2. A Cloudflare Workers project connected to this repository:
 
-| Setting           | Value                                                                                                                                         |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Root directory    | `/` (repository root)                                                                                                                         |
-| Build command     | none                                                                                                                                          |
-| Deploy command    | `npx wrangler d1 migrations apply patrickkearney-api --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc` |
-| Production branch | `main`                                                                                                                                        |
-| Route             | `patrickkearney.dev/api/*` (in `api/wrangler.jsonc`)                                                                                          |
+| Setting           | Value                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root directory    | `/` (repository root)                                                                                                                       |
+| Build command     | none                                                                                                                                        |
+| Deploy command    | `npx wrangler d1 migrations apply golf-leaderboard --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc` |
+| Production branch | `main`                                                                                                                                      |
+| Route             | `patrickkearney.dev/api/*` (in `api/wrangler.jsonc`)                                                                                        |
 
 ## Roadmap
 

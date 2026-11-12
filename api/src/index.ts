@@ -8,7 +8,7 @@ const app = new Hono<{ Bindings: Env }>().basePath("/api");
 
 /** Confirms the Worker is up and can reach its database. */
 app.get("/health", async (c) => {
-  await c.env.DB.prepare("SELECT 1").first();
+  await c.env.LEADERBOARD.prepare("SELECT 1").first();
   return c.json({ ok: true });
 });
 

@@ -22,7 +22,7 @@
     "hub:preview": "npm run hub:build && serve hub/dist -l 4175",
     "api:types": "wrangler types api/worker-configuration.d.ts --config api/wrangler.jsonc",
     "api:dev": "wrangler dev --config api/wrangler.jsonc",
-    "api:migrate": "wrangler d1 migrations apply patrickkearney-api --local --config api/wrangler.jsonc",
+    "api:migrate": "wrangler d1 migrations apply golf-leaderboard --local --config api/wrangler.jsonc",
     "api:build": "wrangler deploy --dry-run --config api/wrangler.jsonc",
     "commitlint": "commitlint --from origin/develop --to HEAD --verbose",
     "prepare": "husky"

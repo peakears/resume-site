@@ -17,10 +17,10 @@
   ],
   "d1_databases": [
     {
-      "binding": "DB",
-      "database_name": "patrickkearney-api",
+      "binding": "LEADERBOARD",
+      "database_name": "golf-leaderboard",
       // Placeholder until the database exists. Create it with
-      // `npx wrangler d1 create patrickkearney-api` and paste its ID here.
+      // `npx wrangler d1 create golf-leaderboard` and paste its ID here.
       // Local development (`npm run api:dev`) works without it.
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "./migrations",
