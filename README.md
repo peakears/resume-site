@@ -35,6 +35,9 @@ npm run dev                       # http://localhost:3000
 | `npm run resume:pdf`    | Build the site and regenerate `public/resume.pdf` from it |
 | `npm run resume:check`  | Fail if the PDF isn't one page or is out of date          |
 | `npm run commitlint`    | Check this branch's commit messages against `develop`     |
+| `npm run api:dev`       | Run the API Worker locally with a local database          |
+| `npm run api:migrate`   | Apply database migrations to the local database           |
+| `npm run api:build`     | Bundle the API Worker without deploying it                |
 | `npm run check`         | Everything above, the same gate CI will run               |
 
 ## Project structure
@@ -45,6 +48,7 @@ src/
   components/   Presentational components, one per section
   data/         profile.ts: all resume content, fully typed
   lib/          Small pure helpers (dates, base path, hub page)
+api/            The API Worker: routes, database migrations, tests
 tests/
   unit/         Vitest + Testing Library component and helper tests
   e2e/          Playwright tests against the real static build
@@ -182,6 +186,34 @@ It's deployed as a **second Cloudflare Worker** ([`hub/wrangler.jsonc`](hub/wran
 | Route             | `patrickkearney.dev/*` (in `hub/wrangler.jsonc`)  |
 
 Playwright tests it alongside the resume site (`hub-desktop` and `hub-mobile` projects), including axe scans in light and dark mode.
+
+## API (patrickkearney.dev/api)
+
+The backend is a **third Cloudflare Worker**, in [`api/`](api), written in TypeScript with [Hono](https://hono.dev) and a [D1](https://developers.cloudflare.com/d1/) (SQLite) database. It serves `patrickkearney.dev/api/*` for the whole domain: each section mounts its routes under its own prefix, so the mini-golf leaderboard will live at `/api/golf/...`. See [ADR 0004](docs/decisions/0004-golf-leaderboard-backend.md) for the reasoning.
+
+```bash
+npm run api:migrate   # create the tables in a local database (first time, and after new migrations)
+npm run api:dev       # http://localhost:8787/api/health
+```
+
+| Route                          | What it does                                                                                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `GET /api/health`              | Confirms the Worker can reach its database                                                                 |
+| `POST /api/golf/scores`        | Takes a finished round's putts, replays them with [`golf.ts`](src/lib/golf.ts) and saves the score it gets |
+| `GET /api/golf/scores?limit=N` | The top scores on the current course (10 by default, at most 50)                                           |
+
+The request and its rules are one shared schema, [`src/lib/leaderboard.ts`](src/lib/leaderboard.ts). The API tests run against a real local D1 database built from the migrations. It isn't deployed yet. Deploying needs, once:
+
+1. `npx wrangler d1 create golf-leaderboard`, then paste the database ID into [`api/wrangler.jsonc`](api/wrangler.jsonc).
+2. A Cloudflare Workers project connected to this repository:
+
+| Setting           | Value                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root directory    | `/` (repository root)                                                                                                                       |
+| Build command     | none                                                                                                                                        |
+| Deploy command    | `npx wrangler d1 migrations apply golf-leaderboard --remote --config api/wrangler.jsonc && npx wrangler deploy --config api/wrangler.jsonc` |
+| Production branch | `main`                                                                                                                                      |
+| Route             | `patrickkearney.dev/api/*` (in `api/wrangler.jsonc`)                                                                                        |
 
 ## Roadmap
 
