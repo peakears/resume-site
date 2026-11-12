@@ -207,6 +207,8 @@ npm run api:dev       # http://localhost:8787/api/health
 | `POST /api/golf/scores`        | Takes a finished round's putts, replays them with [`golf.ts`](src/lib/golf.ts) and saves the score it gets |
 | `GET /api/golf/scores?limit=N` | The top scores on the current course (10 by default, at most 50)                                           |
 
+Posting is limited to 5 a minute per visitor (Cloudflare's rate-limit binding, keyed on the visitor's address, which is never stored); over the limit gets a `429` with `Retry-After`. Reading the leaderboard isn't limited.
+
 The request and its rules are one shared schema, [`src/lib/leaderboard.ts`](src/lib/leaderboard.ts). The API tests run against a real local D1 database built from the migrations. It isn't deployed yet. Deploying needs, once:
 
 1. `npx wrangler d1 create golf-leaderboard`, then paste the database ID into [`api/wrangler.jsonc`](api/wrangler.jsonc).

@@ -49,6 +49,18 @@ scores.get("/scores", async (c) => {
 
 /** Replays the posted putts, and stores the score the replay gives. */
 scores.post("/scores", async (c) => {
+  // Count before doing any work, so junk requests are cheap to turn away.
+  // The address is only a counting key: it isn't logged or stored.
+  const visitor = c.req.header("cf-connecting-ip") ?? "unknown";
+  const { success } = await c.env.SCORE_POSTS.limit({ key: visitor });
+  if (!success) {
+    c.header("Retry-After", "60");
+    return c.json(
+      { error: "Too many scores posted. Try again in a minute." },
+      429,
+    );
+  }
+
   if (!c.req.header("content-type")?.startsWith("application/json")) {
     return c.json({ error: "Send JSON." }, 415);
   }
