@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { COMMANDS, runCommand, type TerminalData } from "@/lib/terminal";
+import {
+  COMMANDS,
+  leaderboardLines,
+  runCommand,
+  type TerminalData,
+} from "@/lib/terminal";
 
 const data: TerminalData = {
   aboutHeadline: "Engineer who builds things.",
@@ -80,6 +85,14 @@ describe("runCommand", () => {
     ]);
   });
 
+  it("asks the terminal to fetch the leaderboard", () => {
+    const result = runCommand("leaderboard", data);
+    expect(result.action).toBe("leaderboard");
+    expect(result.lines).toEqual([
+      { kind: "muted", text: "Fetching the top scores…" },
+    ]);
+  });
+
   it("starts the golf game and clears the screen", () => {
     expect(runCommand("golf", data).action).toBe("golf");
     expect(runCommand("clear", data)).toEqual({ lines: [], action: "clear" });
@@ -98,5 +111,30 @@ describe("runCommand", () => {
   it("has an easter egg for sudo", () => {
     expect(texts("sudo hire")[0]).toMatch(/Permission granted/);
     expect(texts("sudo ls")[0]).toMatch(/Nice try/);
+  });
+});
+
+describe("leaderboardLines", () => {
+  it("prints one line per score, with the strokes on each hole", () => {
+    const lines = leaderboardLines([
+      { rank: 1, name: "ACE", total: 8, strokes: [2, 3, 3], createdAt: "a" },
+      { rank: 2, name: "PAT", total: 10, strokes: [3, 3, 4], createdAt: "b" },
+    ]);
+    expect(lines).toEqual([
+      { kind: "output", text: "1. ACE  8 strokes  [2-3-3]" },
+      { kind: "output", text: "2. PAT  10 strokes  [3-3-4]" },
+    ]);
+  });
+
+  it("says when there are no scores yet", () => {
+    expect(leaderboardLines([])).toEqual([
+      { kind: "muted", text: "No scores yet. Type 'golf' to post the first." },
+    ]);
+  });
+
+  it("says when the leaderboard can't be reached", () => {
+    expect(leaderboardLines(null)).toEqual([
+      { kind: "error", text: "Leaderboard unavailable." },
+    ]);
   });
 });

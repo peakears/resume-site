@@ -61,7 +61,7 @@ Everything on the page comes from [`src/data/profile.ts`](src/data/profile.ts). 
 
 ### Interactive terminal and mini golf
 
-The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`, `contact`, `resume`, `clear`), all printed from `profile.ts`. `golf` opens a three-hole putting game drawn on a canvas, playable with a mouse, touch or keyboard. The physics and the commands are pure modules ([`src/lib/golf.ts`](src/lib/golf.ts), [`src/lib/terminal.ts`](src/lib/terminal.ts)) with their own unit tests, and the game's code only downloads when someone types `golf`.
+The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`, `contact`, `resume`, `golf`, `leaderboard`, `clear`), all printed from `profile.ts`. `golf` opens a three-hole putting game drawn on a canvas, playable with a mouse, touch or keyboard. After a round you can post your score with three initials; `leaderboard` prints the top five. The game works without the API, and says "Leaderboard unavailable" if it can't be reached. The physics and the commands are pure modules ([`src/lib/golf.ts`](src/lib/golf.ts), [`src/lib/terminal.ts`](src/lib/terminal.ts)) with their own unit tests, and the game's code only downloads when someone types `golf`.
 
 ### PDF resume
 
@@ -206,6 +206,8 @@ npm run api:dev       # http://localhost:8787/api/health
 | `GET /api/health`              | Confirms the Worker can reach its database                                                                 |
 | `POST /api/golf/scores`        | Takes a finished round's putts, replays them with [`golf.ts`](src/lib/golf.ts) and saves the score it gets |
 | `GET /api/golf/scores?limit=N` | The top scores on the current course (10 by default, at most 50)                                           |
+
+Posting is limited to 5 a minute per visitor (Cloudflare's rate-limit binding, keyed on the visitor's address, which is never stored); over the limit gets a `429` with `Retry-After`. Reading the leaderboard isn't limited.
 
 The request and its rules are one shared schema, [`src/lib/leaderboard.ts`](src/lib/leaderboard.ts). The API tests run against a real local D1 database built from the migrations. It isn't deployed yet. Deploying needs, once:
 

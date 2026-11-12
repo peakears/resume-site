@@ -1,5 +1,6 @@
 import type { Link, Role, SkillGroup } from "@/data/profile";
 import { formatDateRange } from "./dates";
+import type { LeaderboardEntry } from "./leaderboard";
 
 /** The profile content the hero terminal can print. */
 export interface TerminalData {
@@ -25,7 +26,7 @@ export type TerminalLine =
 export interface CommandResult {
   lines: TerminalLine[];
   /** Something the terminal should do besides printing. */
-  action?: "clear" | "golf";
+  action?: "clear" | "golf" | "leaderboard";
 }
 
 export const COMMANDS = [
@@ -37,10 +38,33 @@ export const COMMANDS = [
   { name: "resume", description: "download my resume (PDF)" },
   { name: "hub", description: "all my links, on one page" },
   { name: "golf", description: "play a quick round of mini golf" },
+  { name: "leaderboard", description: "see the top mini golf scores" },
   { name: "clear", description: "clear the screen" },
 ] as const;
 
 const out = (text: string): TerminalLine => ({ kind: "output", text });
+
+/**
+ * The lines the `leaderboard` command prints once the scores arrive. `entries`
+ * is null when the leaderboard can't be reached.
+ */
+export function leaderboardLines(
+  entries: LeaderboardEntry[] | null,
+): TerminalLine[] {
+  if (entries === null) {
+    return [{ kind: "error", text: "Leaderboard unavailable." }];
+  }
+  if (entries.length === 0) {
+    return [
+      { kind: "muted", text: "No scores yet. Type 'golf' to post the first." },
+    ];
+  }
+  return entries.map((entry) =>
+    out(
+      `${entry.rank}. ${entry.name}  ${entry.total} strokes  [${entry.strokes.join("-")}]`,
+    ),
+  );
+}
 
 /** Runs one line typed into the terminal. */
 export function runCommand(input: string, data: TerminalData): CommandResult {
@@ -117,6 +141,11 @@ export function runCommand(input: string, data: TerminalData): CommandResult {
       return {
         lines: [{ kind: "muted", text: "Teeing up… ⛳" }],
         action: "golf",
+      };
+    case "leaderboard":
+      return {
+        lines: [{ kind: "muted", text: "Fetching the top scores…" }],
+        action: "leaderboard",
       };
     case "clear":
       return { lines: [], action: "clear" };
