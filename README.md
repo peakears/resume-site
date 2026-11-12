@@ -61,7 +61,7 @@ Everything on the page comes from [`src/data/profile.ts`](src/data/profile.ts). 
 
 ### Interactive terminal and mini golf
 
-The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`, `contact`, `resume`, `clear`), all printed from `profile.ts`. `golf` opens a three-hole putting game drawn on a canvas, playable with a mouse, touch or keyboard. The physics and the commands are pure modules ([`src/lib/golf.ts`](src/lib/golf.ts), [`src/lib/terminal.ts`](src/lib/terminal.ts)) with their own unit tests, and the game's code only downloads when someone types `golf`.
+The terminal in the hero takes commands (`help`, `about`, `experience`, `skills`, `contact`, `resume`, `golf`, `leaderboard`, `clear`), all printed from `profile.ts`. `golf` opens a three-hole putting game drawn on a canvas, playable with a mouse, touch or keyboard. After a round you can post your score with three initials; `leaderboard` prints the top five. The game works without the API, and says "Leaderboard unavailable" if it can't be reached. The physics and the commands are pure modules ([`src/lib/golf.ts`](src/lib/golf.ts), [`src/lib/terminal.ts`](src/lib/terminal.ts)) with their own unit tests, and the game's code only downloads when someone types `golf`.
 
 ### PDF resume
 

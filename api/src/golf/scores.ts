@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import { playRound } from "../../../src/lib/golf";
 import {
   COURSE_VERSION,
-  submissionSchema,
   type LeaderboardEntry,
 } from "../../../src/lib/leaderboard";
+import { submissionSchema } from "../../../src/lib/leaderboardSchema";
 
 /** A round of the most putts allowed is about 8 KB of JSON. */
 const MAX_BODY_BYTES = 16 * 1024;
