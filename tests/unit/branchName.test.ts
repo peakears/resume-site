@@ -1,4 +1,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BRANCH_TYPES, checkBranchName } from "@/lib/branchName";
 
@@ -83,11 +86,56 @@ describe("scripts/check-branch-name.mts", () => {
     expect(run(["--pre-push"], "").status).toBe(0);
   });
 
-  it("checks the current branch", () => {
-    const branch = execFileSync("git", ["branch", "--show-current"], {
-      encoding: "utf8",
-    }).trim();
-    // Detached HEAD in some CI checkouts gives no name, which passes.
-    expect(run(["--current"]).status).toBe(checkBranchName(branch) ? 1 : 0);
+  // Each case builds its own repository, so the result doesn't depend on
+  // where the tests run (CI checks out pull requests on a detached HEAD).
+  describe("--current", () => {
+    const script = join(process.cwd(), "scripts/check-branch-name.mts");
+    const inRepo = (setup: (git: (...args: string[]) => void) => void) => {
+      const dir = mkdtempSync(join(tmpdir(), "branch-name-"));
+      const git = (...args: string[]) => {
+        execFileSync(
+          "git",
+          [
+            "-c",
+            "user.name=Test",
+            "-c",
+            "user.email=test@example.com",
+            "-c",
+            "commit.gpgsign=false",
+            ...args,
+          ],
+          { cwd: dir, stdio: "ignore" },
+        );
+      };
+      try {
+        setup(git);
+        return spawnSync("node", [script, "--current"], {
+          cwd: dir,
+          encoding: "utf8",
+        });
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    };
+
+    it("passes a branch with a good name", () => {
+      const result = inRepo((git) => git("init", "-q", "-b", "feature/ok"));
+      expect(result.status).toBe(0);
+    });
+
+    it("fails a branch with a bad name", () => {
+      const result = inRepo((git) => git("init", "-q", "-b", "my-branch"));
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('"my-branch"');
+    });
+
+    it("passes on a detached HEAD, which has no branch name", () => {
+      const result = inRepo((git) => {
+        git("init", "-q", "-b", "my-branch");
+        git("commit", "-q", "--allow-empty", "-m", "first");
+        git("checkout", "-q", "--detach");
+      });
+      expect(result.status).toBe(0);
+    });
   });
 });
