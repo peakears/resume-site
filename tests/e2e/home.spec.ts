@@ -246,6 +246,30 @@ test.describe("home page", () => {
     await expect(terminal).toContainText(profile.aboutHeadline);
   });
 
+  test("completes commands with Tab and prints a git log", async ({ page }) => {
+    await page.goto(resumeHome);
+    const prompt = page.getByRole("textbox", { name: "Terminal command" });
+    await prompt.fill("gi");
+    await prompt.press("Tab");
+    await expect(prompt).toHaveValue("git log");
+    await prompt.press("Enter");
+    const terminal = page.getByRole("figure", {
+      name: "Profile summary, written as code",
+    });
+    const current = profile.experience.find((role) => role.end === null)!;
+    await expect(terminal).toContainText(`(HEAD -> main)`);
+    await expect(terminal).toContainText(`join ${current.company}`);
+  });
+
+  test("serves the resume as JSON Resume", async ({ request }) => {
+    const response = await request.get(asset("/resume.json"));
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toContain("application/json");
+    const resume = await response.json();
+    expect(resume.basics.name).toBe(profile.name);
+    expect(resume.work).toHaveLength(profile.experience.length);
+  });
+
   test("plays mini golf from the terminal", async ({ page }) => {
     await page.goto(resumeHome);
     const prompt = page.getByRole("textbox", { name: "Terminal command" });

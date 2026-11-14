@@ -109,6 +109,7 @@ export const profile: Profile = {
       start: "2026-10",
       end: null,
       highlights: [
+        "Extend the checkout service to sell multiple products in one order, calculating and storing tax for each product individually, to support a new team being onboarded.",
         "Use Claude Code as an agentic AI coding tool to ship faster and raise code quality.",
       ],
       tech: [],
