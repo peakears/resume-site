@@ -235,7 +235,7 @@ describe("ProfileTerminal", () => {
         company="Acme"
         stack={["Go", "AWS"]}
         focus={["payments"]}
-        data={fixture}
+        data={{ ...fixture, resumeJson: "/resume.json" }}
         {...props}
       />,
     );
@@ -290,6 +290,19 @@ describe("ProfileTerminal", () => {
     expect(input).toHaveValue("help");
     await user.keyboard("{ArrowDown}{ArrowDown}");
     expect(input).toHaveValue("");
+  });
+
+  it("completes commands with Tab, and lets Tab move on otherwise", async () => {
+    const user = userEvent.setup();
+    terminal({});
+    const input = screen.getByRole("textbox", { name: "Terminal command" });
+    await user.type(input, "exp");
+    await user.tab();
+    expect(input).toHaveValue("experience");
+    expect(input).toHaveFocus();
+
+    await user.tab();
+    expect(input).not.toHaveFocus();
   });
 
   it("clears the screen", async () => {
