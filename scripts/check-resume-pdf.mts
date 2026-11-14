@@ -5,7 +5,10 @@
  * `npm run resume:pdf`).
  *
  * Text is compared rather than bytes because PDF bytes include timestamps
- * and can vary slightly between machines.
+ * and can vary slightly between machines. Whitespace is ignored too, because
+ * Chromium versions position glyphs differently enough that the extracted
+ * text splits words in different places ("remote" vs "rem ote"). Any change
+ * to the words themselves still fails the check.
  *
  * Usage: npm run resume:check   (builds the site first)
  * The fresh PDF is left at test-results/resume.pdf for inspection.
@@ -24,12 +27,15 @@ const [committed, fresh] = await Promise.all([
   readPdf(FRESH),
 ]);
 
-if (committed.text !== fresh.text) {
-  const a = committed.text.split(" ");
-  const b = fresh.text.split(" ");
+// Compare with all whitespace removed (see the note at the top).
+const squash = (text: string) => text.replace(/\s+/g, "");
+const a = squash(committed.text);
+const b = squash(fresh.text);
+
+if (a !== b) {
   let i = 0;
   while (i < a.length && a[i] === b[i]) i++;
-  const context = (words: string[]) => words.slice(i, i + 12).join(" ");
+  const context = (text: string) => text.slice(Math.max(0, i - 20), i + 40);
   console.error(
     [
       "public/resume.pdf is out of date with the site.",
