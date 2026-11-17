@@ -12,6 +12,7 @@ import {
 } from "react";
 import { getScores } from "@/lib/leaderboardApi";
 import {
+  completeCommand,
   leaderboardLines,
   runCommand,
   type TerminalData,
@@ -160,8 +161,18 @@ export function ProfileTerminal({
     }
   };
 
-  // Up and down arrows step through earlier commands, like a real shell.
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    // Tab completes a command. It's only captured when it adds something,
+    // so Tab still moves focus out of the terminal otherwise.
+    if (event.key === "Tab" && !event.shiftKey) {
+      const completed = completeCommand(input);
+      if (completed !== input) {
+        event.preventDefault();
+        setInput(completed);
+      }
+      return;
+    }
+    // Up and down arrows step through earlier commands, like a real shell.
     if (history.length === 0) return;
     if (event.key === "ArrowUp") {
       event.preventDefault();

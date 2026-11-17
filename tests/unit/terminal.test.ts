@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   COMMANDS,
+  completeCommand,
   leaderboardLines,
   runCommand,
   type TerminalData,
@@ -11,6 +12,7 @@ const data: TerminalData = {
   email: "jane@example.com",
   socials: [{ label: "GitHub", href: "https://github.com/jane" }],
   resumePdf: "/resume.pdf",
+  resumeJson: "/resume.json",
   hubUrl: "https://jane.example",
   skills: [
     { category: "Languages", skills: ["Java", "Go"], featured: true },
@@ -77,6 +79,11 @@ describe("runCommand", () => {
       href: "/resume.pdf",
       download: true,
     });
+    expect(runCommand("resume", data).lines[1]).toMatchObject({
+      kind: "link",
+      text: "resume.json",
+      href: "/resume.json",
+    });
   });
 
   it("links to the hub page", () => {
@@ -136,5 +143,69 @@ describe("leaderboardLines", () => {
     expect(leaderboardLines(null)).toEqual([
       { kind: "error", text: "Leaderboard unavailable." },
     ]);
+  });
+});
+
+describe("git log", () => {
+  const career: TerminalData = {
+    ...data,
+    experience: [
+      { ...data.experience[0], company: "Beta", start: "2024-05", end: null },
+      {
+        ...data.experience[0],
+        company: "Acme",
+        start: "2021-03",
+        end: "2022-12",
+      },
+      {
+        ...data.experience[0],
+        company: "Acme",
+        title: "Senior Engineer",
+        start: "2023-01",
+        end: "2024-04",
+      },
+    ],
+  };
+
+  it("lists roles newest first, with the current one at HEAD", () => {
+    const log = runCommand("git log", career).lines.map((l) => l.text);
+    expect(log).toHaveLength(3);
+    expect(log[0]).toMatch(
+      /^[0-9a-f]{7} \(HEAD -> main\) May 2024 {2}feat: join Beta as Engineer$/,
+    );
+    expect(log[1]).toMatch(
+      /Jan 2023 {2}feat: promoted to Senior Engineer @ Acme$/,
+    );
+    expect(log[2]).toMatch(
+      /Mar 2021 {2}chore: start career as Engineer @ Acme$/,
+    );
+    expect(log[2]).not.toContain("HEAD");
+  });
+
+  it("gives each role a stable hash", () => {
+    expect(texts("git log")).toEqual(texts("git log"));
+  });
+
+  it("explains other git commands", () => {
+    expect(texts("git push")).toEqual([
+      "git: 'push' is not a git command. Try 'git log'.",
+    ]);
+    expect(texts("git")).toEqual(["usage: git log"]);
+  });
+});
+
+describe("completeCommand", () => {
+  it("completes a unique prefix", () => {
+    expect(completeCommand("exp")).toBe("experience");
+    expect(completeCommand("gi")).toBe("git log");
+    expect(completeCommand("RES")).toBe("resume");
+    expect(completeCommand("lea")).toBe("leaderboard");
+  });
+
+  it("leaves ambiguous, unknown, empty and complete input alone", () => {
+    expect(completeCommand("g")).toBe("g");
+    expect(completeCommand("zzz")).toBe("zzz");
+    expect(completeCommand("")).toBe("");
+    expect(completeCommand("help")).toBe("help");
   });
 });
