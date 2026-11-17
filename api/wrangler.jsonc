@@ -1,0 +1,33 @@
+// Cloudflare Worker for the site's API at patrickkearney.dev/api/*. It is the
+// one backend for every section of the domain: each section adds its routes
+// under its own prefix (src/golf/ → /api/golf/...).
+// Run it locally with `npm run api:dev`; deploy with
+// `npx wrangler deploy --config api/wrangler.jsonc`.
+// See docs/decisions/0004-golf-leaderboard-backend.md.
+{
+  "name": "patrickkearney-api",
+  "main": "./src/index.ts",
+  "compatibility_date": "2026-11-01",
+  // More specific than the hub Worker's catch-all, so this route wins.
+  "routes": [
+    {
+      "pattern": "patrickkearney.dev/api/*",
+      "zone_name": "patrickkearney.dev",
+    },
+  ],
+  "d1_databases": [
+    {
+      "binding": "LEADERBOARD",
+      "database_name": "golf-leaderboard",
+      // Placeholder until the database exists. Create it with
+      // `npx wrangler d1 create golf-leaderboard` and paste its ID here.
+      // Local development (`npm run api:dev`) works without it.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "./migrations",
+    },
+  ],
+  // Unlike the static sites, this Worker runs code, so keep its logs.
+  "observability": {
+    "enabled": true,
+  },
+}
