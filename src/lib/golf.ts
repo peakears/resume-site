@@ -246,7 +246,7 @@ export interface HoleState {
 
 /** Slack for rounding in a launch velocity's speed. */
 const SPEED_SLACK = 1e-6;
-/** No putt rolls this long; friction stops a full-power one in 4 seconds. */
+/** No putt rolls this long: friction stops even a full-power one in about 3 seconds. */
 const MAX_ROLL_STEPS = 10 / STEP;
 
 /** The start of a hole: ball on the tee, no strokes. */
