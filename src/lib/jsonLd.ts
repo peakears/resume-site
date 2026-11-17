@@ -1,7 +1,7 @@
 import type { Profile } from "@/data/profile";
 
 /** Skill groups left out of `knowsAbout`: they aren't things I know yet. */
-const EXCLUDED_SKILL_GROUPS = new Set(["Currently Learning"]);
+export const EXCLUDED_SKILL_GROUPS = new Set(["Currently Learning"]);
 
 /**
  * Builds schema.org structured data describing the page as a profile of one
