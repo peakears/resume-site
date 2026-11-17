@@ -8,6 +8,8 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
+import { Leaderboard } from "./Leaderboard";
+import { PostScoreForm } from "./PostScoreForm";
 import {
   BALL_RADIUS,
   COURSE,
@@ -27,12 +29,33 @@ import {
   type Shot,
   type Vec,
 } from "@/lib/golf";
+import { COURSE_VERSION, type LeaderboardEntry } from "@/lib/leaderboard";
+import { getScores, newRoundId, postScore } from "@/lib/leaderboardApi";
 
 type Phase = "aiming" | "rolling" | "holed" | "finished";
 
 /** How far (in course units) a drag must go for a full-power putt. */
 const FULL_POWER_DRAG = 150;
 const DEFAULT_POWER = 0.5;
+
+const INITIALS_KEY = "golf-initials";
+
+/** The initials used last time, if this browser lets us remember them. */
+const savedInitials = () => {
+  try {
+    return localStorage.getItem(INITIALS_KEY) ?? "";
+  } catch {
+    return "";
+  }
+};
+
+const rememberInitials = (name: string) => {
+  try {
+    localStorage.setItem(INITIALS_KEY, name);
+  } catch {
+    // Private browsing or blocked storage: the form just starts empty.
+  }
+};
 
 const toDegrees = (radians: number) =>
   Math.round(((radians * 180) / Math.PI + 360) % 360);
@@ -52,6 +75,11 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
   );
   const [power, setPower] = useState(DEFAULT_POWER);
   const [message, setMessage] = useState("");
+  // The round's id, made when it starts, so posting twice can't count twice.
+  const [roundId, setRoundId] = useState(newRoundId);
+  // undefined while loading, null if the leaderboard can't be reached.
+  const [board, setBoard] = useState<LeaderboardEntry[] | null | undefined>();
+  const [postedRank, setPostedRank] = useState<number>();
 
   // The ball and the stroke count. The rules live in golf.ts, so the
   // leaderboard server can replay a round and reach the same score.
@@ -226,6 +254,34 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
     return () => cancelAnimationFrame(frame);
   }, [draw, level, phase]);
 
+  // When the round ends, load the leaderboard to show beside the scorecard.
+  useEffect(() => {
+    if (phase !== "finished") return;
+    const controller = new AbortController();
+    getScores(10, { signal: controller.signal }).then((entries) => {
+      if (!controller.signal.aborted) setBoard(entries);
+    });
+    return () => controller.abort();
+  }, [phase]);
+
+  const post = async (name: string) => {
+    rememberInitials(name);
+    const result = await postScore({
+      roundId,
+      name,
+      shots: [...shots.current],
+      courseVersion: COURSE_VERSION,
+    });
+    if (result.status === "saved") {
+      setPostedRank(result.rank);
+      // Skip the cached list, which was fetched before this score existed.
+      getScores(10, { fresh: true }).then((entries) => {
+        if (entries) setBoard(entries);
+      });
+    }
+    return result;
+  };
+
   const putt = () => {
     if (phase !== "aiming" || power < MIN_POWER) return;
     const shot = launch(angle, power);
@@ -262,6 +318,9 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
 
   const playAgain = () => {
     shots.current = [];
+    setRoundId(newRoundId());
+    setBoard(undefined);
+    setPostedRank(undefined);
     setScores([]);
     goToHole(0);
   };
@@ -325,7 +384,7 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
       ref={dialogRef}
       aria-labelledby="golf-title"
       onClose={onClose}
-      className="bg-background text-foreground border-border m-auto w-[calc(100%-2rem)] max-w-3xl rounded-xl border p-4 shadow-2xl backdrop:bg-black/60 sm:p-6 print:hidden"
+      className="bg-background text-foreground border-border m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-xl border p-4 shadow-2xl backdrop:bg-black/60 sm:p-6 print:hidden"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -434,6 +493,26 @@ export function GolfGame({ onClose }: { onClose: () => void }) {
             </tr>
           </tbody>
         </table>
+      )}
+
+      {phase === "finished" && (
+        <section aria-labelledby="golf-board-title" className="mt-6">
+          <h3 id="golf-board-title" className="mb-3 text-sm font-semibold">
+            Leaderboard
+          </h3>
+          <PostScoreForm
+            key={roundId}
+            defaultName={savedInitials()}
+            onPost={post}
+          />
+          <div className="mt-4">
+            <Leaderboard
+              entries={board}
+              par={totalPar}
+              highlightRank={postedRank}
+            />
+          </div>
+        </section>
       )}
     </dialog>
   );

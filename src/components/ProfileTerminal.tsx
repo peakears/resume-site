@@ -10,8 +10,10 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { getScores } from "@/lib/leaderboardApi";
 import {
   completeCommand,
+  leaderboardLines,
   runCommand,
   type TerminalData,
   type TerminalLine,
@@ -152,6 +154,11 @@ export function ProfileTerminal({
     }
     setLines((l) => [...l, { kind: "command", text: typed }, ...result.lines]);
     if (result.action === "golf") setGolfOpen(true);
+    if (result.action === "leaderboard") {
+      getScores(5).then((entries) =>
+        setLines((l) => [...l, ...leaderboardLines(entries)]),
+      );
+    }
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {

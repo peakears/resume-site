@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MAX_SHOTS } from "@/lib/golf";
-import { COURSE_VERSION, submissionSchema } from "@/lib/leaderboard";
+import { COURSE_VERSION, nameProblem } from "@/lib/leaderboard";
+import { submissionSchema } from "@/lib/leaderboardSchema";
 
 const valid = {
   roundId: "6f1c2b0e-8a43-4c1d-9d52-3b7d1f0a9e11",
@@ -11,6 +12,18 @@ const valid = {
 
 const check = (changes: Record<string, unknown>) =>
   submissionSchema.safeParse({ ...valid, ...changes });
+
+describe("nameProblem", () => {
+  it("accepts three capital letters", () => {
+    expect(nameProblem("PAT")).toBeNull();
+  });
+
+  it("says what's wrong with other initials", () => {
+    expect(nameProblem("pat")).toBe("Use three capital letters, A to Z.");
+    expect(nameProblem("PA")).toBe("Use three capital letters, A to Z.");
+    expect(nameProblem("ASS")).toBe("Pick different initials.");
+  });
+});
 
 describe("a leaderboard submission", () => {
   it("accepts a well-formed round", () => {

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import app from "../src/index";
-import { createEnv, playTheCourse, validSubmission } from "./support";
+import { allowAll, createEnv, playTheCourse, validSubmission } from "./support";
 
 let env: Env;
 let dispose: () => Promise<void>;
@@ -102,6 +102,59 @@ describe("POST /api/golf/scores", () => {
       "SELECT 1 FROM golf_scores",
     ).all();
     expect(results).toHaveLength(0);
+  });
+});
+
+describe("rate limiting", () => {
+  it("turns away a visitor over the limit before reading the body", async () => {
+    const limited = {
+      ...env,
+      SCORE_POSTS: { limit: async () => ({ success: false }) },
+    } as unknown as Env;
+    const response = await app.request(
+      "/api/golf/scores",
+      { method: "POST", body: "not even json" },
+      limited,
+    );
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("60");
+    expect(await response.json()).toEqual({
+      error: "Too many scores posted. Try again in a minute.",
+    });
+  });
+
+  it("counts each visitor separately, by address", async () => {
+    const limiter = allowAll();
+    const counted = { ...env, SCORE_POSTS: limiter } as Env;
+    const send = (address: string) =>
+      app.request(
+        "/api/golf/scores",
+        {
+          method: "POST",
+          headers: { "cf-connecting-ip": address },
+          body: "",
+        },
+        counted,
+      );
+    await send("203.0.113.7");
+    await send("198.51.100.2");
+    expect(limiter.keys).toEqual(["203.0.113.7", "198.51.100.2"]);
+  });
+
+  it("doesn't limit reading the leaderboard", async () => {
+    const limiter = allowAll();
+    await app.request("/api/golf/scores", {}, { ...env, SCORE_POSTS: limiter });
+    expect(limiter.keys).toEqual([]);
+  });
+
+  it("stores nothing about the visitor", async () => {
+    await post(validSubmission({ shots: round }), {
+      "cf-connecting-ip": "203.0.113.7",
+    });
+    const { results } = await env.LEADERBOARD.prepare(
+      "SELECT * FROM golf_scores",
+    ).all();
+    expect(JSON.stringify(results)).not.toContain("203.0.113.7");
   });
 });
 

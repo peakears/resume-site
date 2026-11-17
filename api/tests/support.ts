@@ -14,6 +14,18 @@ import { COURSE_VERSION } from "../../src/lib/leaderboard";
 
 const API = join(import.meta.dirname, "..");
 
+/** A rate limiter that never limits, and remembers the keys it was asked about. */
+export const allowAll = (): RateLimit & { keys: string[] } => {
+  const keys: string[] = [];
+  return {
+    keys,
+    limit: async ({ key }) => {
+      keys.push(key);
+      return { success: true };
+    },
+  };
+};
+
 /**
  * A fresh in-memory D1 database (the same SQLite that Cloudflare runs) with
  * every migration applied, so tests exercise the real schema and constraints.
@@ -34,7 +46,12 @@ export async function createEnv() {
       await proxy.env.LEADERBOARD.prepare(statement).run();
     }
   }
-  return { env: proxy.env, dispose: () => proxy.dispose() };
+  // Tests post far more than the real limit allows, so they get a limiter
+  // that always says yes. The limit itself is tested with its own stand-in.
+  const env = Object.assign(Object.create(proxy.env), {
+    SCORE_POSTS: allowAll(),
+  }) as Env;
+  return { env, dispose: () => proxy.dispose() };
 }
 
 /**

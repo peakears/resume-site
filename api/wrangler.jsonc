@@ -26,6 +26,16 @@
       "migrations_dir": "./migrations",
     },
   ],
+  // Posting a score is limited per visitor. Cloudflare counts per key (the
+  // visitor's address, see src/golf/scores.ts) and nothing is stored.
+  "ratelimits": [
+    {
+      "name": "SCORE_POSTS",
+      // Any number that is unique among this account's rate limiters.
+      "namespace_id": "1001",
+      "simple": { "limit": 5, "period": 60 },
+    },
+  ],
   // Unlike the static sites, this Worker runs code, so keep its logs.
   "observability": {
     "enabled": true,
